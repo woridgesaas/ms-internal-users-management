@@ -85,7 +85,7 @@ This architecture ensures :
 
 ## **How to Run :**
 
-1. Clone the repository : **git clone https://gitlab.com/woridgesaas/employe/ms-attendance-management.git**
+1. Clone the repository : **git clone https://gitlab.com/woridgesaas/employe/ms-internal-users-management.git**
 2. Build the project : **mvn clean install**
 3. Run the application : **mvn spring-boot:run** or run the packaged JAR: **java -jar
    target/attendance-management-0.0.1-SNAPSHOT.jar**
