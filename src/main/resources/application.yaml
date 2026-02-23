@@ -1,6 +1,11 @@
 spring:
   application:
     name: ms-internal-users-management
+  flyway:
+    validate-on-migrate: true
+  security:
+    jwt:
+      secret-key: ${SECRET_KEY}
 
 server:
   port: 8081
