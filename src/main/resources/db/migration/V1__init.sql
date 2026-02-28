@@ -1,12 +1,10 @@
--- ENUM type for status
-CREATE TYPE status AS ENUM ('ACTIVE', 'INACTIVE');
 
 -- Department table
 CREATE TABLE departments
 (
-    id         BIGSERIAL PRIMARY KEY,
+    id         UUID PRIMARY KEY,
     name       VARCHAR(50)                           NOT NULL,
-    status     status                                NOT NULL,
+    status     VARCHAR(50)                                NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMPTZ
 );
@@ -14,17 +12,17 @@ CREATE TABLE departments
 -- User table
 CREATE TABLE users
 (
-    id            BIGSERIAL PRIMARY KEY,
+    id            UUID PRIMARY KEY,
     first_name    VARCHAR(50)                           NOT NULL,
     last_name     VARCHAR(50)                           NOT NULL,
     email         VARCHAR(50) UNIQUE                    NOT NULL,
     password      VARCHAR(255)                          NOT NULL,
     phone_number  VARCHAR(15)                           NOT NULL,
     CIN           VARCHAR(10) UNIQUE                    NOT NULL,
-    status        status                                NOT NULL,
+    status        VARCHAR(50)                                NOT NULL,
     address       TEXT,
     picture_path  TEXT,
-    department_id BIGINT                                NOT NULL,
+    department_id UUID                               NOT NULL,
     created_at    TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at    TIMESTAMPTZ,
     CONSTRAINT fk_department
@@ -37,8 +35,8 @@ CREATE TABLE users
 -- Promotion table
 CREATE TABLE promotions
 (
-    id              BIGSERIAL PRIMARY KEY,
-    user_id         BIGINT                                NOT NULL,
+    id              UUID PRIMARY KEY,
+    user_id         UUID                                NOT NULL,
     promotion_date  DATE                                  NOT NULL,
     previous_salary NUMERIC(12, 2)                        NOT NULL,
     new_salary      NUMERIC(12, 2)                        NOT NULL,
@@ -56,8 +54,8 @@ CREATE TABLE promotions
 -- Post table
 CREATE TABLE posts
 (
-    id           BIGSERIAL PRIMARY KEY,
-    promotion_id BIGINT                                NOT NULL,
+    id           UUID PRIMARY KEY,
+    promotion_id UUID                                NOT NULL,
     name         VARCHAR(50)                           NOT NULL,
     level        INT,
     base_salary  NUMERIC(12, 2)                        NOT NULL,
@@ -72,8 +70,8 @@ CREATE TABLE posts
 -- Bank information table
 CREATE TABLE bank_informations
 (
-    id             BIGSERIAL PRIMARY KEY,
-    user_id        BIGINT                                NOT NULL UNIQUE,
+    id             UUID PRIMARY KEY,
+    user_id        UUID                                NOT NULL UNIQUE,
     name           VARCHAR(50)                           NOT NULL,
     account_number VARCHAR(100)                          NOT NULL,
     code_iban      VARCHAR(100)                          NOT NULL,
@@ -90,8 +88,8 @@ CREATE TABLE bank_informations
 -- Education table
 CREATE TABLE educations
 (
-    id               BIGSERIAL PRIMARY KEY,
-    user_id          BIGINT                                NOT NULL,
+    id               UUID PRIMARY KEY,
+    user_id          UUID                                NOT NULL,
     university       VARCHAR(50)                           NOT NULL,
     field_of_study   VARCHAR(50)                           NOT NULL,
     degree           VARCHAR(50)                           NOT NULL,
@@ -108,8 +106,8 @@ CREATE TABLE educations
 -- Resignation table
 CREATE TABLE resignations
 (
-    id               BIGSERIAL PRIMARY KEY,
-    user_id          BIGINT                                NOT NULL UNIQUE,
+    id               UUID PRIMARY KEY,
+    user_id          UUID                               NOT NULL UNIQUE,
     reason           TEXT                                  NOT NULL,
     notice_date      DATE                                  NOT NULL,
     resignation_date DATE                                  NOT NULL,
@@ -125,7 +123,7 @@ CREATE TABLE resignations
 -- Payroll details table
 CREATE TABLE payroll_details
 (
-    id             BIGSERIAL PRIMARY KEY,
+    id             UUID PRIMARY KEY,
     date           DATE                                  NOT NULL,
     type           VARCHAR(50)                           NOT NULL,
     source_service VARCHAR(50)                           NOT NULL,
@@ -139,9 +137,9 @@ CREATE TABLE payroll_details
 -- Payroll table
 CREATE TABLE payrolls
 (
-    id                   BIGSERIAL PRIMARY KEY,
-    user_id              BIGINT                                NOT NULL,
-    detail_id            BIGINT                                NOT NULL,
+    id                   UUID PRIMARY KEY,
+    user_id              UUID                               NOT NULL,
+    detail_id            UUID                                NOT NULL,
     date                 DATE                                  NOT NULL,
     total_overtime_hours NUMERIC(6, 2)                         NOT NULL,
     total_absence_hours  NUMERIC(6, 2)                         NOT NULL,
