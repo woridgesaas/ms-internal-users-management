@@ -8,6 +8,10 @@ import org.springframework.web.bind.annotation.*;
 import org.woridge.ms_internal_users_management.dto.User.CreateUserRequest;
 import org.woridge.ms_internal_users_management.dto.User.CreateUserResponse;
 import org.woridge.ms_internal_users_management.dto.SuccessResponse;
+import org.woridge.ms_internal_users_management.dto.User.UserSearchResponse;
+import org.woridge.ms_internal_users_management.exception.UserNotFoundException;
+import org.woridge.ms_internal_users_management.model.User;
+import org.woridge.ms_internal_users_management.repository.UserRepository;
 import org.woridge.ms_internal_users_management.service.UserService;
 
 @RestController
@@ -16,6 +20,7 @@ import org.woridge.ms_internal_users_management.service.UserService;
 public class UserController {
 
     private final UserService userService;
+    private final UserRepository userRepository;
 
     @PostMapping
     @PreAuthorize("hasRole('HR')")
@@ -30,5 +35,13 @@ public class UserController {
                         )
                 );
     }
+
+
+    @GetMapping("/search")
+    public ResponseEntity<UserSearchResponse> searchByCin(@RequestParam String cin) {
+        return ResponseEntity.ok(userService.searchByCin(cin));
+    }
+
+
 
 }

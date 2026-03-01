@@ -74,4 +74,25 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.createErrorResponse(exception.getMessage()));
     }
 
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse<String>> handleUserNotFoundException(UserNotFoundException exception) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND) // 404
+                .body(ErrorResponse.createErrorResponse(exception.getMessage()));
+    }
+
+    @ExceptionHandler(ResignationNotFoundException.class)
+    public ResponseEntity<ErrorResponse<String>> handleResignationNotFoundException(ResignationNotFoundException exception) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND) // 404
+                .body(ErrorResponse.createErrorResponse(exception.getMessage()));
+    }
+
+    @ExceptionHandler(ResignationAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse<String>> handleResignationAlreadyExistsException(ResignationAlreadyExistsException exception) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT) // 409
+                .body(ErrorResponse.createErrorResponse(exception.getMessage()));
+    }
+
 }

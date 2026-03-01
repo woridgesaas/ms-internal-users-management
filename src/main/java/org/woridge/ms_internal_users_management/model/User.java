@@ -1,8 +1,6 @@
 package org.woridge.ms_internal_users_management.model;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.woridge.ms_internal_users_management.enumeration.Role;
 import org.woridge.ms_internal_users_management.enumeration.Status;
 import java.time.Instant;
@@ -13,6 +11,8 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
 
     @Id
@@ -30,7 +30,7 @@ public class User {
     private String picturePath;
     @Enumerated(EnumType.STRING)
     private Role role;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="department_id")
     private Department department;
     @ManyToOne(fetch = FetchType.LAZY)

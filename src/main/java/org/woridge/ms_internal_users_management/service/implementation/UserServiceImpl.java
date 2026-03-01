@@ -6,10 +6,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.woridge.ms_internal_users_management.dto.User.CreateUserRequest;
 import org.woridge.ms_internal_users_management.dto.User.CreateUserResponse;
+import org.woridge.ms_internal_users_management.dto.User.UserSearchResponse;
 import org.woridge.ms_internal_users_management.enumeration.Role;
 import org.woridge.ms_internal_users_management.exception.AuthFailedException;
 import org.woridge.ms_internal_users_management.exception.DepartmentNotFoundException;
 import org.woridge.ms_internal_users_management.exception.PostNotFoundException;
+import org.woridge.ms_internal_users_management.exception.UserNotFoundException;
 import org.woridge.ms_internal_users_management.model.Department;
 import org.woridge.ms_internal_users_management.model.Post;
 import org.woridge.ms_internal_users_management.model.User;
@@ -68,5 +70,18 @@ public class UserServiceImpl implements UserService {
     {
         String tempPassword = PasswordGenerator.generate();
         return passwordEncoder.encode(tempPassword);
+    }
+
+    @Override
+    public UserSearchResponse searchByCin(String cin) {
+        User user = userRepository.findByCIN(cin)
+                .orElseThrow(() -> new UserNotFoundException("User not found with CIN: " + cin));
+
+        return new UserSearchResponse(
+                user.getId(),
+                user.getCIN(),
+                user.getFirstName() + " " + user.getLastName(),
+                user.getDepartment() != null ? user.getDepartment().getName() : ""
+        );
     }
 }
