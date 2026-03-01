@@ -77,6 +77,7 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.FORBIDDEN)
                 .body(ErrorResponse.createErrorResponse(exception.getMessage()));
     }
+
     @ExceptionHandler(HolidayNotFoundException.class)
     public ResponseEntity<ErrorResponse<String>> handleHolidayNotFound(HolidayNotFoundException exception){
         return ResponseEntity
@@ -98,7 +99,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(FixedHolidayUpdatedException.class)
     public ResponseEntity<ErrorResponse<String>> handleFixedHolidayUpdate(FixedHolidayUpdatedException exception) {
         return ResponseEntity
-                .status(HttpStatus.UNPROCESSABLE_CONTENT)
+                .status(HttpStatus.UNPROCESSABLE_CONTENT)  // 422
+                .body(ErrorResponse.createErrorResponse(exception.getMessage()));
+        }
+
+    @ExceptionHandler(JwtTokenMissingException.class)
+    public ResponseEntity<ErrorResponse<String>> JwtTokenMissingException(JwtTokenMissingException exception) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
                 .body(ErrorResponse.createErrorResponse(exception.getMessage()));
     }
 
