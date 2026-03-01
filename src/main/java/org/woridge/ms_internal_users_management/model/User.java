@@ -35,7 +35,7 @@ public class User {
     private String picturePath;
     @Enumerated(EnumType.STRING)
     private Role role;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="department_id")
     private Department department;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -50,3 +50,4 @@ public class User {
     private Instant createdAt;
     private Instant updatedAt;
 }
+
