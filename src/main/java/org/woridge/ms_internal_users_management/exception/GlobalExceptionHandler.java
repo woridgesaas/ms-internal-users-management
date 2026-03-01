@@ -11,6 +11,8 @@ import org.woridge.ms_internal_users_management.exception.holiday.FixedHolidayUp
 import org.woridge.ms_internal_users_management.exception.holiday.HolidayExistException;
 import org.woridge.ms_internal_users_management.exception.holiday.HolidayNotFoundException;
 import org.woridge.ms_internal_users_management.exception.holiday.InvalidHolidayDateException;
+import org.woridge.ms_internal_users_management.exception.resignation.ResignationAlreadyExistsException;
+import org.woridge.ms_internal_users_management.exception.resignation.ResignationNotFoundException;
 
 
 @RestControllerAdvice
@@ -159,12 +161,12 @@ public class GlobalExceptionHandler {
     }
 
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorResponse<String>> handleUserNotFoundException(UserNotFoundException exception) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND) // 404
-                .body(ErrorResponse.createErrorResponse(exception.getMessage()));
-    }
+//    @ExceptionHandler(UserNotFoundException.class)
+//    public ResponseEntity<ErrorResponse<String>> handleUserNotFoundException(UserNotFoundException exception) {
+//        return ResponseEntity
+//                .status(HttpStatus.NOT_FOUND) // 404
+//                .body(ErrorResponse.createErrorResponse(exception.getMessage()));
+//    }
 
     @ExceptionHandler(ResignationNotFoundException.class)
     public ResponseEntity<ErrorResponse<String>> handleResignationNotFoundException(ResignationNotFoundException exception) {

@@ -2,7 +2,7 @@ package org.woridge.ms_internal_users_management.dto.resignation;
 
 import java.time.LocalDate;
 
-public record ResignationRequest(
+public record ResignationCreateRequest(
         String cin,
         String reason,
         LocalDate noticeDate,
