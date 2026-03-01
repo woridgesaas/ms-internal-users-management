@@ -1,9 +1,12 @@
 package org.woridge.ms_internal_users_management.service.implementation;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.woridge.ms_internal_users_management.dto.user.CreateUserRequest;
+import org.woridge.ms_internal_users_management.dto.user.CreateUserResponse;
 import org.woridge.ms_internal_users_management.dto.User.CreateUserRequest;
 import org.woridge.ms_internal_users_management.dto.User.CreateUserResponse;
 import org.woridge.ms_internal_users_management.dto.User.UserSearchResponse;
@@ -19,9 +22,10 @@ import org.woridge.ms_internal_users_management.mapper.UserMapper;
 import org.woridge.ms_internal_users_management.repository.DepartmentRepository;
 import org.woridge.ms_internal_users_management.repository.PostRepository;
 import org.woridge.ms_internal_users_management.repository.UserRepository;
-import org.woridge.ms_internal_users_management.service.AuthServiceClient;
+import org.woridge.ms_internal_users_management.service.UserExternalService;
 import org.woridge.ms_internal_users_management.service.UserService;
 import org.woridge.ms_internal_users_management.service.UserValidator;
+import org.woridge.ms_internal_users_management.utils.JwtUtils;
 import org.woridge.ms_internal_users_management.utils.PasswordGenerator;
 @Service
 @RequiredArgsConstructor
@@ -33,8 +37,8 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final UserValidator userValidator;
-    private final AuthServiceClient authServiceClient;
-
+    private final UserExternalService userExternalService;
+    private final HttpServletRequest httpServletRequest;
 
     @Transactional
     public CreateUserResponse createUser(CreateUserRequest request) {
@@ -47,20 +51,21 @@ public class UserServiceImpl implements UserService {
         Post post =postRepository.findByNameIgnoreCase(request.getPostName()).orElseThrow(()->new PostNotFoundException("post not found"));
 
         // 3) generate temp password + encode
-        String encoded =generatePassword();
-        Role role = Role.valueOf(request.getRole()); // ou méthode safe
+        String Hashed =generatePassword();
+        Role role = Role.valueOf(request.getRole());
 
         // 4) map + save
-        User user = userMapper.toEntity(request, department, post ,encoded, role);
+        User user = userMapper.toEntity(request, department, post ,Hashed, role);
         User saved = userRepository.save(user);
 
         CreateUserResponse dto = userMapper.toDto(saved);
+        // 5️⃣ Récupérer JWT du contexte pour l'envoyer à ms-auth
+        String jwtToken = JwtUtils.extractJwt(httpServletRequest);
         try {
-            // 4️⃣ Appeler ms-auth
-            authServiceClient.createUserInAuthService(saved, encoded);
-
+            // 6️⃣ Appel du service externe
+            userExternalService.createUser(saved, Hashed, jwtToken);
         } catch (Exception ex) {
-            // 5️⃣ Rollback si ms-auth échoue
+            // 7️⃣ Rollback si échec ms-auth
             userRepository.delete(saved);
             throw new AuthFailedException("Auth service failed. User rollback executed.");
         }

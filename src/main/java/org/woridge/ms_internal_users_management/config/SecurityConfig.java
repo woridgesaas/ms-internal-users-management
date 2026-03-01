@@ -14,6 +14,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.woridge.ms_internal_users_management.filter.JwtFilter;
 
+
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -30,15 +31,17 @@ public class SecurityConfig {
     private final JwtFilter jwtFilter;
 
     @Bean
-    public SecurityFilterChain customSecurityFilterChain(HttpSecurity httpSecurity) {
-        return httpSecurity
+    public SecurityFilterChain customSecurityFilterChain(HttpSecurity http) throws Exception {
+
+        return http
+                .cors(cors -> {}) //  IMPORTANT (Spring Security 6 style)
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(request ->
                         request
-                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // ✅ preflight CORS
+                                .requestMatchers("/api/auth/**").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

@@ -1,4 +1,4 @@
-package org.woridge.ms_internal_users_management.dto.User;
+package org.woridge.ms_internal_users_management.dto.user;
 
 import lombok.*;
 

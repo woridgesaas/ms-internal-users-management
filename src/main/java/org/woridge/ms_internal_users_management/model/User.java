@@ -1,9 +1,14 @@
 package org.woridge.ms_internal_users_management.model;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.woridge.ms_internal_users_management.enumeration.Role;
 import org.woridge.ms_internal_users_management.enumeration.Status;
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -11,8 +16,8 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class User {
 
     @Id
@@ -36,6 +41,12 @@ public class User {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    private BankInformation bankInformation;
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private Set<Education> educations = new HashSet<>();
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private Set<ProfessionalExperience> professionalExperiences = new HashSet<>();
     private Instant createdAt;
     private Instant updatedAt;
 }

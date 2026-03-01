@@ -1,6 +1,6 @@
 package org.woridge.ms_internal_users_management.mapper;
 
-import org.woridge.ms_internal_users_management.dto.User.CreateUserInAuthRequest;
+import org.woridge.ms_internal_users_management.dto.user.CreateUserInAuthRequest;
 import org.woridge.ms_internal_users_management.model.User;
 
 public class AuthMapper {
