@@ -6,6 +6,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.woridge.ms_internal_users_management.dto.ErrorResponse;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -22,6 +23,20 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN) // 403
+                .body(ErrorResponse.createErrorResponse(exception.getMessage()));
+    }
+    @ExceptionHandler(DepartmentAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse<String>> handleDepartmentExists(DepartmentAlreadyExistsException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage()));
+    }
+    @ExceptionHandler(DepartmentNotFoundException.class)
+    public ResponseEntity<ErrorResponse<String>> handleDepartmentNotFound(
+            DepartmentNotFoundException exception) {
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND) // 404
                 .body(ErrorResponse.createErrorResponse(exception.getMessage()));
     }
 
@@ -41,15 +56,7 @@ public class GlobalExceptionHandler {
                         ErrorResponse.createErrorResponse(exception.getMessage())
                 );
     }
-    @ExceptionHandler(DepartmentNotFoundException.class)
-    public ResponseEntity<ErrorResponse<String>> handleDepartmentNotFoundException(DepartmentNotFoundException exception) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND) //404
-                .body(
-                        ErrorResponse.createErrorResponse(exception.getMessage())
-                );
 
-    }
     @ExceptionHandler(PostNotFoundException.class)
     public ResponseEntity<ErrorResponse<String>> handlePostNotFoundException(PostNotFoundException exception) {
         return ResponseEntity
