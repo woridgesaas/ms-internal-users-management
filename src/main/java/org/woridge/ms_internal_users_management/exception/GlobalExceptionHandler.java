@@ -78,5 +78,38 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(ErrorResponse.createErrorResponse(exception.getMessage()));
     }
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse<String>> UserNotFoundException(UserNotFoundException exception) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND) //404
+                .body(
+                        ErrorResponse.createErrorResponse(exception.getMessage())
+                );
+    }
+    @ExceptionHandler(EducationNotFoundException.class)
+    public ResponseEntity<ErrorResponse<String>> EducationNotFoundException(EducationNotFoundException exception) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND) //404
+                .body(
+                        ErrorResponse.createErrorResponse(exception.getMessage())
+                );
+    }
+    @ExceptionHandler(BankInformationMissingException.class)
+    public ResponseEntity<ErrorResponse<String>> BankInformationMissingException(BankInformationMissingException exception) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT) //409
+                .body(
+                        ErrorResponse.createErrorResponse(exception.getMessage())
+                );
+    }
+    @ExceptionHandler(ProfessionalExperienceNotFoundException.class)
+    public ResponseEntity<ErrorResponse<String>> ProfessionalExperienceNotFoundException(ProfessionalExperienceNotFoundException exception) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND) //404
+                .body(
+                        ErrorResponse.createErrorResponse(exception.getMessage())
+                );
+    }
+
 
 }

@@ -3,7 +3,7 @@ package org.woridge.ms_internal_users_management.service.implementation;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.woridge.ms_internal_users_management.dto.User.CreateUserInAuthRequest;
+import org.woridge.ms_internal_users_management.dto.user.CreateUserInAuthRequest;
 import org.woridge.ms_internal_users_management.mapper.AuthMapper;
 import org.woridge.ms_internal_users_management.model.User;
 import org.woridge.ms_internal_users_management.service.UserExternalService;

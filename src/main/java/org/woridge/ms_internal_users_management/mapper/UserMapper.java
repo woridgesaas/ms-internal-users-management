@@ -1,8 +1,8 @@
 package org.woridge.ms_internal_users_management.mapper;
 
 import org.springframework.stereotype.Component;
-import org.woridge.ms_internal_users_management.dto.User.CreateUserRequest;
-import org.woridge.ms_internal_users_management.dto.User.CreateUserResponse;
+import org.woridge.ms_internal_users_management.dto.user.CreateUserRequest;
+import org.woridge.ms_internal_users_management.dto.user.CreateUserResponse;
 import org.woridge.ms_internal_users_management.enumeration.Role;
 import org.woridge.ms_internal_users_management.enumeration.Status;
 import org.woridge.ms_internal_users_management.model.Department;
