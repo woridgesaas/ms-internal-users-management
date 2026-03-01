@@ -13,6 +13,7 @@ import org.woridge.ms_internal_users_management.exception.UserNotFoundException;
 import org.woridge.ms_internal_users_management.model.User;
 import org.woridge.ms_internal_users_management.repository.UserRepository;
 import org.woridge.ms_internal_users_management.dto.user.EmployeeProfileResponse;
+import org.woridge.ms_internal_users_management.service.DeleteService;
 import org.woridge.ms_internal_users_management.service.EmployeeProfileService;
 import org.woridge.ms_internal_users_management.service.UserService;
 
@@ -26,6 +27,7 @@ public class UserController {
     private final UserService userService;
     private final EmployeeProfileService profileService;
     private final UserRepository userRepository;
+    private final DeleteService deleteService;
 
     @PostMapping
     @PreAuthorize("hasRole('HR')")
@@ -46,6 +48,11 @@ public class UserController {
             @PathVariable UUID id) {
 
         return ResponseEntity.ok(profileService.getEmployeeProfile(id));
+    }
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('CEO','HR')")
+    public ResponseEntity<SuccessResponse<Void>> softDeleteUser(@PathVariable UUID id) {
+        return ResponseEntity.ok(deleteService.softDeleteUser(id));
     }
 
 

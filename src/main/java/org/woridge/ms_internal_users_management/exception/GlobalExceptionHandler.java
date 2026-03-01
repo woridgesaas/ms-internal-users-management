@@ -149,6 +149,14 @@ public class GlobalExceptionHandler {
                         ErrorResponse.createErrorResponse(exception.getMessage())
                 );
     }
+    @ExceptionHandler(UserOperationException.class)
+    public ResponseEntity<ErrorResponse<String>> UserOperationException(UserOperationException exception) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT) //409
+                .body(
+                        ErrorResponse.createErrorResponse(exception.getMessage())
+                );
+    }
 
 
     @ExceptionHandler(UserNotFoundException.class)
