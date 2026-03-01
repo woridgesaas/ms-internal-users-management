@@ -6,6 +6,10 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.woridge.ms_internal_users_management.dto.ErrorResponse;
+import org.woridge.ms_internal_users_management.exception.holiday.FixedHolidayUpdatedException;
+import org.woridge.ms_internal_users_management.exception.holiday.HolidayExistException;
+import org.woridge.ms_internal_users_management.exception.holiday.HolidayNotFoundException;
+import org.woridge.ms_internal_users_management.exception.holiday.InvalidHolidayDateException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -71,6 +75,30 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse<String>> handleAccessDeniedException(AccessDeniedException exception) {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
+                .body(ErrorResponse.createErrorResponse(exception.getMessage()));
+    }
+    @ExceptionHandler(HolidayNotFoundException.class)
+    public ResponseEntity<ErrorResponse<String>> handleHolidayNotFound(HolidayNotFoundException exception){
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.createErrorResponse(exception.getMessage()));
+    }
+    @ExceptionHandler(HolidayExistException.class)
+    public ResponseEntity<ErrorResponse<String>> handleHolidayExist(HolidayExistException exception){
+        return  ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ErrorResponse.createErrorResponse(exception.getMessage()));
+    }
+    @ExceptionHandler(InvalidHolidayDateException.class)
+    public ResponseEntity<ErrorResponse<String>> handleInvalidDate(InvalidHolidayDateException exception){
+        return ResponseEntity
+                .status(HttpStatus.UNPROCESSABLE_CONTENT)
+                .body(ErrorResponse.createErrorResponse(exception.getMessage()));
+    }
+    @ExceptionHandler(FixedHolidayUpdatedException.class)
+    public ResponseEntity<ErrorResponse<String>> handleFixedHolidayUpdate(FixedHolidayUpdatedException exception) {
+        return ResponseEntity
+                .status(HttpStatus.UNPROCESSABLE_CONTENT)
                 .body(ErrorResponse.createErrorResponse(exception.getMessage()));
     }
 
