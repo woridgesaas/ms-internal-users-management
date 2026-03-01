@@ -7,8 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.woridge.ms_internal_users_management.dto.user.CreateUserRequest;
 import org.woridge.ms_internal_users_management.dto.user.CreateUserResponse;
-import org.woridge.ms_internal_users_management.dto.User.CreateUserRequest;
-import org.woridge.ms_internal_users_management.dto.User.CreateUserResponse;
+
 import org.woridge.ms_internal_users_management.dto.User.UserSearchResponse;
 import org.woridge.ms_internal_users_management.enumeration.Role;
 import org.woridge.ms_internal_users_management.exception.AuthFailedException;
