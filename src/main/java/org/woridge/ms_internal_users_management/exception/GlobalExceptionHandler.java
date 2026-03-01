@@ -11,6 +11,8 @@ import org.woridge.ms_internal_users_management.exception.holiday.FixedHolidayUp
 import org.woridge.ms_internal_users_management.exception.holiday.HolidayExistException;
 import org.woridge.ms_internal_users_management.exception.holiday.HolidayNotFoundException;
 import org.woridge.ms_internal_users_management.exception.holiday.InvalidHolidayDateException;
+import org.woridge.ms_internal_users_management.exception.resignation.ResignationAlreadyExistsException;
+import org.woridge.ms_internal_users_management.exception.resignation.ResignationNotFoundException;
 
 
 @RestControllerAdvice
@@ -32,7 +34,7 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.createErrorResponse(exception.getMessage()));
     }
     @ExceptionHandler(DepartmentAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse<String>> UserNotFoundException(DepartmentAlreadyExistsException ex) {
+    public ResponseEntity<ErrorResponse<String>> handleDepartmentExists(DepartmentAlreadyExistsException ex) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(ErrorResponse.createErrorResponse(ex.getMessage()));
