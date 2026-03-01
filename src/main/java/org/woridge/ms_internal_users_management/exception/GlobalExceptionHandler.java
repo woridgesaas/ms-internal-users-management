@@ -161,12 +161,7 @@ public class GlobalExceptionHandler {
     }
 
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorResponse<String>> handleUserNotFoundException(UserNotFoundException exception) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND) // 404
-                .body(ErrorResponse.createErrorResponse(exception.getMessage()));
-    }
+
 
     @ExceptionHandler(ResignationNotFoundException.class)
     public ResponseEntity<ErrorResponse<String>> handleResignationNotFoundException(ResignationNotFoundException exception) {
