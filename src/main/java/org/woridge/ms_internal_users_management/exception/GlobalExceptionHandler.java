@@ -6,7 +6,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.woridge.ms_internal_users_management.dto.ErrorResponse;
-
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -71,6 +70,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse<String>> handleAccessDeniedException(AccessDeniedException exception) {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
+                .body(ErrorResponse.createErrorResponse(exception.getMessage()));
+    }
+    @ExceptionHandler(JwtTokenMissingException.class)
+    public ResponseEntity<ErrorResponse<String>> JwtTokenMissingException(JwtTokenMissingException exception) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
                 .body(ErrorResponse.createErrorResponse(exception.getMessage()));
     }
 
