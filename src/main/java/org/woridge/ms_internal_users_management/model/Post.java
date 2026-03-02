@@ -23,5 +23,6 @@ public class Post {
     private Instant createdAt;
     private Instant updatedAt;
 
+
 }
 

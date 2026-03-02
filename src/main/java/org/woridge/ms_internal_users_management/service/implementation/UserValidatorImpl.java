@@ -2,7 +2,7 @@ package org.woridge.ms_internal_users_management.service.implementation;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.woridge.ms_internal_users_management.exception.*;
+import org.woridge.ms_internal_users_management.exception.user.*;
 import org.woridge.ms_internal_users_management.model.User;
 import org.woridge.ms_internal_users_management.repository.UserRepository;
 import org.woridge.ms_internal_users_management.service.UserValidator;

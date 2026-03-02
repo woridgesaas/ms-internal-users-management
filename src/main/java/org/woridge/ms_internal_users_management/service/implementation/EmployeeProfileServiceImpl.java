@@ -4,7 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.woridge.ms_internal_users_management.dto.user.EmployeeProfileResponse;
-import org.woridge.ms_internal_users_management.exception.UserNotFoundException;
+import org.woridge.ms_internal_users_management.exception.user.UserNotFoundException;
 import org.woridge.ms_internal_users_management.mapper.EmployeeProfileMapper;
 import org.woridge.ms_internal_users_management.model.User;
 import org.woridge.ms_internal_users_management.repository.UserRepository;

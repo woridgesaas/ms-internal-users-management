@@ -26,8 +26,8 @@ public class EmployeeProfileMapper {
                 user.getAddress(),
                 user.getPicturePath(),
                 user.getRole().getRoleName(),
-                user.getDepartment().getName(),
-                user.getPost().getName(),
+                user.getDepartment() != null ? user.getDepartment().getName() : null,
+                user.getPost() != null ? user.getPost().getName() : null,
                 mapBank(user.getBankInformation()),
                 mapEducations(user.getEducations()),
                 mapExperiences(user.getProfessionalExperiences())

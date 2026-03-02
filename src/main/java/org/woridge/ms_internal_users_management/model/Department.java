@@ -37,7 +37,7 @@ public class Department {
     public void prePersist() {
         createdAt = Instant.now();
         if (status == null) {
-            status = StatusDepartment.INACTIVE;
+            status = StatusDepartment.ACTIVE;
         }
     }
 
