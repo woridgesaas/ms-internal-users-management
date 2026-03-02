@@ -7,12 +7,23 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.woridge.ms_internal_users_management.dto.ErrorResponse;
 
+import org.woridge.ms_internal_users_management.exception.auth.AuthFailedException;
+import org.woridge.ms_internal_users_management.exception.auth.JwtTokenMissingException;
+import org.woridge.ms_internal_users_management.exception.auth.NoAuthoritiesFoundException;
+import org.woridge.ms_internal_users_management.exception.auth.UnauthenticatedUserException;
+import org.woridge.ms_internal_users_management.exception.department.DepartmentAlreadyExistsException;
+import org.woridge.ms_internal_users_management.exception.department.DepartmentNotFoundException;
 import org.woridge.ms_internal_users_management.exception.holiday.FixedHolidayUpdatedException;
 import org.woridge.ms_internal_users_management.exception.holiday.HolidayExistException;
 import org.woridge.ms_internal_users_management.exception.holiday.HolidayNotFoundException;
 import org.woridge.ms_internal_users_management.exception.holiday.InvalidHolidayDateException;
+import org.woridge.ms_internal_users_management.exception.post.PostNotFoundException;
+import org.woridge.ms_internal_users_management.exception.promotion.PromotionException;
 import org.woridge.ms_internal_users_management.exception.resignation.ResignationAlreadyExistsException;
 import org.woridge.ms_internal_users_management.exception.resignation.ResignationNotFoundException;
+import org.woridge.ms_internal_users_management.exception.user.*;
+
+import java.util.Map;
 
 
 @RestControllerAdvice
@@ -160,7 +171,12 @@ public class GlobalExceptionHandler {
                 );
     }
 
+    @ExceptionHandler(PromotionException.class)
+    public ResponseEntity<?> handlePromotionException(PromotionException ex) {
 
+        return ResponseEntity.badRequest()
+                .body(Map.of("error", ex.getMessage()));
+    }
 
 
     @ExceptionHandler(ResignationNotFoundException.class)

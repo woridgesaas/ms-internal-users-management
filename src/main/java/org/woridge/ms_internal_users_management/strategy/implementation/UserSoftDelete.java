@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.woridge.ms_internal_users_management.dto.SuccessResponse;
 import org.woridge.ms_internal_users_management.enumeration.Status;
-import org.woridge.ms_internal_users_management.exception.UserOperationException;
+import org.woridge.ms_internal_users_management.exception.user.UserOperationException;
 import org.woridge.ms_internal_users_management.model.User;
 import org.woridge.ms_internal_users_management.repository.UserRepository;
 import org.woridge.ms_internal_users_management.strategy.DeleteStrategy;

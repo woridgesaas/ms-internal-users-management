@@ -8,7 +8,7 @@ import org.woridge.ms_internal_users_management.dto.resignation.ResignationRespo
 import org.woridge.ms_internal_users_management.dto.resignation.ResignationUpdateRequest;
 import org.woridge.ms_internal_users_management.exception.resignation.ResignationAlreadyExistsException;
 import org.woridge.ms_internal_users_management.exception.resignation.ResignationNotFoundException;
-import org.woridge.ms_internal_users_management.exception.UserNotFoundException;
+import org.woridge.ms_internal_users_management.exception.user.UserNotFoundException;
 import org.woridge.ms_internal_users_management.mapper.ResignationMapper;
 import org.woridge.ms_internal_users_management.model.Resignation;
 import org.woridge.ms_internal_users_management.model.User;

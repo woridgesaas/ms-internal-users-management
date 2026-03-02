@@ -3,8 +3,8 @@ package org.woridge.ms_internal_users_management.utils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.woridge.ms_internal_users_management.exception.NoAuthoritiesFoundException;
-import org.woridge.ms_internal_users_management.exception.UnauthenticatedUserException;
+import org.woridge.ms_internal_users_management.exception.auth.NoAuthoritiesFoundException;
+import org.woridge.ms_internal_users_management.exception.auth.UnauthenticatedUserException;
 
 public final class SecurityUtils {
 

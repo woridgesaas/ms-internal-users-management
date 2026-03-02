@@ -10,10 +10,10 @@ import org.woridge.ms_internal_users_management.dto.user.CreateUserResponse;
 
 import org.woridge.ms_internal_users_management.dto.User.UserSearchResponse;
 import org.woridge.ms_internal_users_management.enumeration.Role;
-import org.woridge.ms_internal_users_management.exception.AuthFailedException;
-import org.woridge.ms_internal_users_management.exception.DepartmentNotFoundException;
-import org.woridge.ms_internal_users_management.exception.PostNotFoundException;
-import org.woridge.ms_internal_users_management.exception.UserNotFoundException;
+import org.woridge.ms_internal_users_management.exception.auth.AuthFailedException;
+import org.woridge.ms_internal_users_management.exception.department.DepartmentNotFoundException;
+import org.woridge.ms_internal_users_management.exception.post.PostNotFoundException;
+import org.woridge.ms_internal_users_management.exception.user.UserNotFoundException;
 import org.woridge.ms_internal_users_management.model.Department;
 import org.woridge.ms_internal_users_management.model.Post;
 import org.woridge.ms_internal_users_management.model.User;
@@ -50,19 +50,24 @@ public class UserServiceImpl implements UserService {
         Post post =postRepository.findByNameIgnoreCase(request.getPostName()).orElseThrow(()->new PostNotFoundException("post not found"));
 
         // 3) generate temp password + encode
-        String Hashed =generatePassword();
-        Role role = Role.valueOf(request.getRole());
+// 3) generate temp password
+        String tempPassword = PasswordGenerator.generate();
+
+// ⚠️ DEBUG ONLY
+        System.out.println("Generated RAW password: " + tempPassword);
+
+// encode
+        String hashedPassword = passwordEncoder.encode(tempPassword);        Role role = Role.valueOf(request.getRole());
 
         // 4) map + save
-        User user = userMapper.toEntity(request, department, post ,Hashed, role);
-        User saved = userRepository.save(user);
+        User user = userMapper.toEntity(request, department, post, hashedPassword, role);        User saved = userRepository.save(user);
 
         CreateUserResponse dto = userMapper.toDto(saved);
         // 5️⃣ Récupérer JWT du contexte pour l'envoyer à ms-auth
         String jwtToken = JwtUtils.extractJwt(httpServletRequest);
         try {
             // 6️⃣ Appel du service externe
-            userExternalService.createUser(saved, Hashed, jwtToken);
+            userExternalService.createUser(saved, hashedPassword, jwtToken);
         } catch (Exception ex) {
             // 7️⃣ Rollback si échec ms-auth
             userRepository.delete(saved);
