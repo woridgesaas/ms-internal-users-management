@@ -6,7 +6,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.woridge.ms_internal_users_management.dto.ErrorResponse;
-
+import org.woridge.ms_internal_users_management.enumeration.ErrorCode;
+import org.woridge.ms_internal_users_management.exception.post.PostNotFoundException;
 import org.woridge.ms_internal_users_management.exception.auth.AuthFailedException;
 import org.woridge.ms_internal_users_management.exception.auth.JwtTokenMissingException;
 import org.woridge.ms_internal_users_management.exception.auth.NoAuthoritiesFoundException;
@@ -17,180 +18,217 @@ import org.woridge.ms_internal_users_management.exception.holiday.FixedHolidayUp
 import org.woridge.ms_internal_users_management.exception.holiday.HolidayExistException;
 import org.woridge.ms_internal_users_management.exception.holiday.HolidayNotFoundException;
 import org.woridge.ms_internal_users_management.exception.holiday.InvalidHolidayDateException;
-import org.woridge.ms_internal_users_management.exception.post.PostNotFoundException;
 import org.woridge.ms_internal_users_management.exception.promotion.PromotionException;
 import org.woridge.ms_internal_users_management.exception.resignation.ResignationAlreadyExistsException;
 import org.woridge.ms_internal_users_management.exception.resignation.ResignationNotFoundException;
 import org.woridge.ms_internal_users_management.exception.user.*;
-
 import java.util.Map;
 
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(UnauthenticatedUserException.class)
-    public ResponseEntity<ErrorResponse<String>> handleUnauthenticatedUserException(UnauthenticatedUserException exception) {
+    // ==============================
+    // Authentication / Authorization
+    // ==============================
 
+    @ExceptionHandler(UnauthenticatedUserException.class)
+    public ResponseEntity<ErrorResponse<String>> handleUnauthenticatedUserException(UnauthenticatedUserException ex) {
         return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED) // 401
-                .body(ErrorResponse.createErrorResponse(exception.getMessage()));
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.UNAUTHORIZED));
+    }
+
+    @ExceptionHandler(JwtTokenMissingException.class)
+    public ResponseEntity<ErrorResponse<String>> handleJwtTokenMissingException(JwtTokenMissingException ex) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.JWT_TOKEN_MISSING));
+    }
+
+    @ExceptionHandler(AuthFailedException.class)
+    public ResponseEntity<ErrorResponse<String>> handleAuthFailedException(AuthFailedException ex) {
+        return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.AUTH_FAILED));
     }
 
     @ExceptionHandler(NoAuthoritiesFoundException.class)
-    public ResponseEntity<ErrorResponse<String>> handleNoAuthoritiesFoundException(NoAuthoritiesFoundException exception) {
-
+    public ResponseEntity<ErrorResponse<String>> handleNoAuthoritiesFoundException(NoAuthoritiesFoundException ex) {
         return ResponseEntity
-                .status(HttpStatus.FORBIDDEN) // 403
-                .body(ErrorResponse.createErrorResponse(exception.getMessage()));
+                .status(HttpStatus.FORBIDDEN)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.NO_AUTHORITIES_FOUND));
     }
-    @ExceptionHandler(DepartmentAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse<String>> handleDepartmentExists(DepartmentAlreadyExistsException ex) {
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(ErrorResponse.createErrorResponse(ex.getMessage()));
-    }
-    @ExceptionHandler(DepartmentNotFoundException.class)
-    public ResponseEntity<ErrorResponse<String>> handleDepartmentNotFound(
-            DepartmentNotFoundException exception) {
 
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse<String>> handleAccessDeniedException(AccessDeniedException ex) {
         return ResponseEntity
-                .status(HttpStatus.NOT_FOUND) // 404
-                .body(ErrorResponse.createErrorResponse(exception.getMessage()));
+                .status(HttpStatus.FORBIDDEN)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.ACCESS_DENIED));
+    }
+
+    // ==============================
+    // User
+    // ==============================
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse<String>> handleUserNotFoundException(UserNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.USER_NOT_FOUND));
     }
 
     @ExceptionHandler(EmailDuplicatedException.class)
-    public ResponseEntity<ErrorResponse<String>> handleEmailDuplicatedException(EmailDuplicatedException exception) {
+    public ResponseEntity<ErrorResponse<String>> handleEmailDuplicatedException(EmailDuplicatedException ex) {
         return ResponseEntity
-                .status(HttpStatus.CONFLICT) //409
-                .body(
-                        ErrorResponse.createErrorResponse(exception.getMessage())
-                );
+                .status(HttpStatus.CONFLICT)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.EMAIL_DUPLICATED));
     }
+
     @ExceptionHandler(CINDuplicatedException.class)
-    public ResponseEntity<ErrorResponse<String>> handleCINDuplicatedException(CINDuplicatedException exception) {
+    public ResponseEntity<ErrorResponse<String>> handleCINDuplicatedException(CINDuplicatedException ex) {
         return ResponseEntity
-                .status(HttpStatus.CONFLICT) //409
-                .body(
-                        ErrorResponse.createErrorResponse(exception.getMessage())
-                );
+                .status(HttpStatus.CONFLICT)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.CIN_DUPLICATED));
     }
 
-    @ExceptionHandler(PostNotFoundException.class)
-    public ResponseEntity<ErrorResponse<String>> handlePostNotFoundException(PostNotFoundException exception) {
+    @ExceptionHandler(UserOperationException.class)
+    public ResponseEntity<ErrorResponse<String>> handleUserOperationException(UserOperationException ex) {
         return ResponseEntity
-                .status(HttpStatus.NOT_FOUND) //404
-                .body(
-                        ErrorResponse.createErrorResponse(exception.getMessage())
-                );
-    }
-    @ExceptionHandler(AuthFailedException.class)
-    public ResponseEntity<ErrorResponse<String>> handleAuthFailedException(AuthFailedException exception) {
-        return ResponseEntity
-                .status(HttpStatus.SERVICE_UNAVAILABLE) //503
-                .body(
-                        ErrorResponse.createErrorResponse(exception.getMessage())
-                );
-    }
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse<String>> handleAccessDeniedException(AccessDeniedException exception) {
-        return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(ErrorResponse.createErrorResponse(exception.getMessage()));
+                .status(HttpStatus.CONFLICT)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.USER_OPERATION_FAILED));
     }
 
-    @ExceptionHandler(HolidayNotFoundException.class)
-    public ResponseEntity<ErrorResponse<String>> handleHolidayNotFound(HolidayNotFoundException exception){
+    // ==============================
+    // Department
+    // ==============================
+
+    @ExceptionHandler(DepartmentNotFoundException.class)
+    public ResponseEntity<ErrorResponse<String>> handleDepartmentNotFoundException(DepartmentNotFoundException ex) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(ErrorResponse.createErrorResponse(exception.getMessage()));
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.DEPARTMENT_NOT_FOUND));
     }
-    @ExceptionHandler(HolidayExistException.class)
-    public ResponseEntity<ErrorResponse<String>> handleHolidayExist(HolidayExistException exception){
-        return  ResponseEntity
+
+    @ExceptionHandler(DepartmentAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse<String>> handleDepartmentExistsException(DepartmentAlreadyExistsException ex) {
+        return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body(ErrorResponse.createErrorResponse(exception.getMessage()));
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.DEPARTMENT_ALREADY_EXISTS));
     }
+
+    // ==============================
+    // Post
+    // ==============================
+
+    @ExceptionHandler(PostNotFoundException.class)
+    public ResponseEntity<ErrorResponse<String>> handlePostNotFoundException(PostNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.POST_NOT_FOUND));
+    }
+
+    // ==============================
+    // Holiday
+    // ==============================
+
+    @ExceptionHandler(HolidayNotFoundException.class)
+    public ResponseEntity<ErrorResponse<String>> handleHolidayNotFound(HolidayNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.HOLIDAY_NOT_FOUND));
+    }
+
+    @ExceptionHandler(HolidayExistException.class)
+    public ResponseEntity<ErrorResponse<String>> handleHolidayExist(HolidayExistException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.HOLIDAY_ALREADY_EXISTS));
+    }
+
     @ExceptionHandler(InvalidHolidayDateException.class)
-    public ResponseEntity<ErrorResponse<String>> handleInvalidDate(InvalidHolidayDateException exception){
+    public ResponseEntity<ErrorResponse<String>> handleInvalidDate(InvalidHolidayDateException ex) {
         return ResponseEntity
-                .status(HttpStatus.UNPROCESSABLE_CONTENT)
-                .body(ErrorResponse.createErrorResponse(exception.getMessage()));
+                .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.INVALID_HOLIDAY_DATE));
     }
+
     @ExceptionHandler(FixedHolidayUpdatedException.class)
-    public ResponseEntity<ErrorResponse<String>> handleFixedHolidayUpdate(FixedHolidayUpdatedException exception) {
+    public ResponseEntity<ErrorResponse<String>> handleFixedHolidayUpdate(FixedHolidayUpdatedException ex) {
         return ResponseEntity
-                .status(HttpStatus.UNPROCESSABLE_CONTENT)  // 422
-                .body(ErrorResponse.createErrorResponse(exception.getMessage()));
-        }
+                .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.FIXED_HOLIDAY_UPDATE_NOT_ALLOWED));
+    }
 
-    @ExceptionHandler(JwtTokenMissingException.class)
-    public ResponseEntity<ErrorResponse<String>> JwtTokenMissingException(JwtTokenMissingException exception) {
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(ErrorResponse.createErrorResponse(exception.getMessage()));
-    }
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorResponse<String>> UserNotFoundException(UserNotFoundException exception) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND) //404
-                .body(
-                        ErrorResponse.createErrorResponse(exception.getMessage())
-                );
-    }
+    // ==============================
+    // Education
+    // ==============================
+
     @ExceptionHandler(EducationNotFoundException.class)
-    public ResponseEntity<ErrorResponse<String>> EducationNotFoundException(EducationNotFoundException exception) {
+    public ResponseEntity<ErrorResponse<String>> handleEducationNotFoundException(EducationNotFoundException ex) {
         return ResponseEntity
-                .status(HttpStatus.NOT_FOUND) //404
-                .body(
-                        ErrorResponse.createErrorResponse(exception.getMessage())
-                );
-    }
-    @ExceptionHandler(BankInformationMissingException.class)
-    public ResponseEntity<ErrorResponse<String>> BankInformationMissingException(BankInformationMissingException exception) {
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT) //409
-                .body(
-                        ErrorResponse.createErrorResponse(exception.getMessage())
-                );
-    }
-    @ExceptionHandler(ProfessionalExperienceNotFoundException.class)
-    public ResponseEntity<ErrorResponse<String>> ProfessionalExperienceNotFoundException(ProfessionalExperienceNotFoundException exception) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND) //404
-                .body(
-                        ErrorResponse.createErrorResponse(exception.getMessage())
-                );
-    }
-    @ExceptionHandler(UserOperationException.class)
-    public ResponseEntity<ErrorResponse<String>> UserOperationException(UserOperationException exception) {
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT) //409
-                .body(
-                        ErrorResponse.createErrorResponse(exception.getMessage())
-                );
+                .status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.EDUCATION_NOT_FOUND));
     }
 
+    // ==============================
+    // Bank
+    // ==============================
+
+    @ExceptionHandler(BankInformationMissingException.class)
+    public ResponseEntity<ErrorResponse<String>> handleBankInformationMissingException(BankInformationMissingException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.BANK_INFORMATION_MISSING));
+    }
+
+    // ==============================
+    // Experience
+    // ==============================
+
+    @ExceptionHandler(ProfessionalExperienceNotFoundException.class)
+    public ResponseEntity<ErrorResponse<String>> handleProfessionalExperienceNotFoundException(ProfessionalExperienceNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.PROFESSIONAL_EXPERIENCE_NOT_FOUND));
+    }
+
+
+
+
+    // ==============================
+    // Promotion
+    // ==============================
     @ExceptionHandler(PromotionException.class)
     public ResponseEntity<?> handlePromotionException(PromotionException ex) {
 
         return ResponseEntity.badRequest()
                 .body(Map.of("error", ex.getMessage()));
     }
+//    @ExceptionHandler(PromotionException.class)
+//    public ResponseEntity<ErrorResponse<String>> handlePromotionException(PromotionException ex) {
+//        return ResponseEntity
+//                .status(HttpStatus.BAD_REQUEST)
+//                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.PROMOTION_ERROR));
+//    }
 
+
+    // ==============================
+    // Resignation
+    // ==============================
 
     @ExceptionHandler(ResignationNotFoundException.class)
-    public ResponseEntity<ErrorResponse<String>> handleResignationNotFoundException(ResignationNotFoundException exception) {
+    public ResponseEntity<ErrorResponse<String>> handleResignationNotFoundException(ResignationNotFoundException ex) {
         return ResponseEntity
-                .status(HttpStatus.NOT_FOUND) // 404
-                .body(ErrorResponse.createErrorResponse(exception.getMessage()));
+                .status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.RESIGNATION_NOT_FOUND));
     }
 
     @ExceptionHandler(ResignationAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse<String>> handleResignationAlreadyExistsException(ResignationAlreadyExistsException exception) {
+    public ResponseEntity<ErrorResponse<String>> handleResignationAlreadyExistsException(ResignationAlreadyExistsException ex) {
         return ResponseEntity
-                .status(HttpStatus.CONFLICT) // 409
-                .body(ErrorResponse.createErrorResponse(exception.getMessage()));
+                .status(HttpStatus.CONFLICT)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.RESIGNATION_ALREADY_EXISTS));
     }
 
 }

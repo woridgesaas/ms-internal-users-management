@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface PostRepository extends JpaRepository<Post, UUID> {
+public interface PostRepository extends JpaRepository<Post, Long> {
+   Optional<Post>  findById(UUID id);
    Optional<Post>  findByNameIgnoreCase(String name);
-
 }

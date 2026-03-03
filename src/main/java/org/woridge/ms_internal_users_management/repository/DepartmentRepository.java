@@ -25,4 +25,6 @@ public interface DepartmentRepository extends JpaRepository<Department, UUID> {
        GROUP BY d
        """)
     List<Object[]> findAllWithEmployeeCount();
+    Optional<Department> findById(UUID id);
+
 }

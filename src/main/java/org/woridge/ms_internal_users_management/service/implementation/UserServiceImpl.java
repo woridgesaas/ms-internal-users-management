@@ -46,8 +46,8 @@ public class UserServiceImpl implements UserService {
         userValidator.checkUniqueEmail(request.getEmail());
         userValidator.checkUniqueCIN(request.getCIN());
         // 2) department
-        Department department = departmentRepository.findByNameIgnoreCase(request.getDepartmentName()).orElseThrow(()->new DepartmentNotFoundException("department not found"));
-        Post post =postRepository.findByNameIgnoreCase(request.getPostName()).orElseThrow(()->new PostNotFoundException("post not found"));
+        Department department = departmentRepository.findById(request.getDepartmentId()).orElseThrow(()->new DepartmentNotFoundException("department not found"));
+        Post post =postRepository.findById(request.getPostId()).orElseThrow(()->new PostNotFoundException("post not found"));
 
         // 3) generate temp password + encode
 // 3) generate temp password

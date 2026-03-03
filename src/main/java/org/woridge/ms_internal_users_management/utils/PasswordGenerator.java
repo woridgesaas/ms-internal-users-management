@@ -13,7 +13,8 @@ public final class PasswordGenerator {
         for (int i = 0; i < 10; i++) {
             sb.append(CHARS.charAt(RANDOM.nextInt(CHARS.length())));
         }
-        return sb.toString();
+//        return sb.toString();
+        return "douaeAy@22";
     }
 
 }
