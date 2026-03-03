@@ -10,10 +10,10 @@ import org.woridge.ms_internal_users_management.dto.user.CreateUserResponse;
 
 import org.woridge.ms_internal_users_management.dto.User.UserSearchResponse;
 import org.woridge.ms_internal_users_management.enumeration.Role;
-import org.woridge.ms_internal_users_management.exception.AuthFailedException;
-import org.woridge.ms_internal_users_management.exception.DepartmentNotFoundException;
-import org.woridge.ms_internal_users_management.exception.PostNotFoundException;
-import org.woridge.ms_internal_users_management.exception.UserNotFoundException;
+import org.woridge.ms_internal_users_management.exception.auth.AuthFailedException;
+import org.woridge.ms_internal_users_management.exception.department.DepartmentNotFoundException;
+import org.woridge.ms_internal_users_management.exception.post.PostNotFoundException;
+import org.woridge.ms_internal_users_management.exception.user.UserNotFoundException;
 import org.woridge.ms_internal_users_management.model.Department;
 import org.woridge.ms_internal_users_management.model.Post;
 import org.woridge.ms_internal_users_management.model.User;
@@ -46,8 +46,8 @@ public class UserServiceImpl implements UserService {
         userValidator.checkUniqueEmail(request.getEmail());
         userValidator.checkUniqueCIN(request.getCIN());
         // 2) department
-        Department department = departmentRepository.findByNameIgnoreCase(request.getDepartmentName()).orElseThrow(()->new DepartmentNotFoundException("department not found"));
-        Post post =postRepository.findByNameIgnoreCase(request.getPostName()).orElseThrow(()->new PostNotFoundException("post not found"));
+        Department department = departmentRepository.findById(request.getDepartmentId()).orElseThrow(()->new DepartmentNotFoundException("department not found"));
+        Post post =postRepository.findById(request.getPostId()).orElseThrow(()->new PostNotFoundException("post not found"));
 
         // 3) generate temp password + encode
         String Hashed =generatePassword();

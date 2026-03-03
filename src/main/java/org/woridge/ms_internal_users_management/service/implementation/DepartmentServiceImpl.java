@@ -8,10 +8,9 @@ import org.woridge.ms_internal_users_management.repository.DepartmentRepository;
 import org.woridge.ms_internal_users_management.dto.department.CreateDepartmentRequest;
 import org.woridge.ms_internal_users_management.dto.department.DepartmentResponse;
 import org.woridge.ms_internal_users_management.dto.department.UpdateDepartmentRequest;
-import org.woridge.ms_internal_users_management.exception.DepartmentAlreadyExistsException;
-import org.woridge.ms_internal_users_management.exception.DepartmentNotFoundException;
+import org.woridge.ms_internal_users_management.exception.department.DepartmentAlreadyExistsException;
+import org.woridge.ms_internal_users_management.exception.department.DepartmentNotFoundException;
 import org.woridge.ms_internal_users_management.model.Department;
-import org.woridge.ms_internal_users_management.enumeration.StatusDepartment;
 import org.woridge.ms_internal_users_management.repository.UserRepository;
 import org.woridge.ms_internal_users_management.service.DepartmentService;
 

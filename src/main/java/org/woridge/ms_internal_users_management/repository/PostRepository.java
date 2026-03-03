@@ -5,8 +5,9 @@ import org.springframework.stereotype.Repository;
 import org.woridge.ms_internal_users_management.model.Post;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
-   Optional<Post>  findByNameIgnoreCase(String name);
+   Optional<Post>  findById(UUID id);
 }

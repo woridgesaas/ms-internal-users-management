@@ -5,15 +5,14 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.woridge.ms_internal_users_management.dto.resignation.ResignationRequest;
 import org.woridge.ms_internal_users_management.dto.resignation.ResignationResponse;
-import org.woridge.ms_internal_users_management.exception.ResignationAlreadyExistsException;
-import org.woridge.ms_internal_users_management.exception.ResignationNotFoundException;
-import org.woridge.ms_internal_users_management.exception.UserNotFoundException;
+import org.woridge.ms_internal_users_management.exception.resignation.ResignationAlreadyExistsException;
+import org.woridge.ms_internal_users_management.exception.resignation.ResignationNotFoundException;
+import org.woridge.ms_internal_users_management.exception.user.UserNotFoundException;
 import org.woridge.ms_internal_users_management.model.Resignation;
 import org.woridge.ms_internal_users_management.model.User;
 import org.woridge.ms_internal_users_management.repository.ResignationRepository;
 import org.woridge.ms_internal_users_management.repository.UserRepository;
 import org.woridge.ms_internal_users_management.service.ResignationService;
-import org.woridge.ms_internal_users_management.utils.SecurityUtils;
 
 import java.util.List;
 import java.util.UUID;

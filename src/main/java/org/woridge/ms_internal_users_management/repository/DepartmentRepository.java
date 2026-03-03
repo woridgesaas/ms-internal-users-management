@@ -18,4 +18,6 @@ public interface DepartmentRepository extends JpaRepository<Department, UUID> {
 
     Optional<Department> findByNameIgnoreCase(String name);
 
+    Optional<Department> findById(UUID id);
+
 }

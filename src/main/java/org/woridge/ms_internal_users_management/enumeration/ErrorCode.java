@@ -1,0 +1,43 @@
+package org.woridge.ms_internal_users_management.enumeration;
+
+public enum ErrorCode {
+
+    // Authentication / Authorization
+    UNAUTHORIZED,
+    ACCESS_DENIED,
+    JWT_TOKEN_MISSING,
+    AUTH_FAILED,
+    NO_AUTHORITIES_FOUND,
+
+    // User
+    USER_NOT_FOUND,
+    EMAIL_DUPLICATED,
+    CIN_DUPLICATED,
+    USER_OPERATION_FAILED,
+
+    // Department
+    DEPARTMENT_NOT_FOUND,
+    DEPARTMENT_ALREADY_EXISTS,
+
+    // Post
+    POST_NOT_FOUND,
+
+    // Holiday
+    HOLIDAY_NOT_FOUND,
+    HOLIDAY_ALREADY_EXISTS,
+    INVALID_HOLIDAY_DATE,
+    FIXED_HOLIDAY_UPDATE_NOT_ALLOWED,
+
+    // Education
+    EDUCATION_NOT_FOUND,
+
+    // Bank
+    BANK_INFORMATION_MISSING,
+
+    // Experience
+    PROFESSIONAL_EXPERIENCE_NOT_FOUND,
+
+    // Resignation
+    RESIGNATION_NOT_FOUND,
+    RESIGNATION_ALREADY_EXISTS
+}
