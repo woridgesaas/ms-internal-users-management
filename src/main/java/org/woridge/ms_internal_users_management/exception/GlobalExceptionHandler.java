@@ -178,7 +178,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BankInformationMissingException.class)
     public ResponseEntity<ErrorResponse<String>> handleBankInformationMissingException(BankInformationMissingException ex) {
         return ResponseEntity
-                .status(HttpStatus.CONFLICT)
+                .status(HttpStatus.NOT_FOUND)//404
                 .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.BANK_INFORMATION_MISSING));
     }
 
@@ -199,18 +199,13 @@ public class GlobalExceptionHandler {
     // ==============================
     // Promotion
     // ==============================
-    @ExceptionHandler(PromotionException.class)
-    public ResponseEntity<?> handlePromotionException(PromotionException ex) {
 
-        return ResponseEntity.badRequest()
-                .body(Map.of("error", ex.getMessage()));
+    @ExceptionHandler(PromotionException.class)
+    public ResponseEntity<ErrorResponse<String>> handlePromotionException(PromotionException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.PROMOTION_ERROR));
     }
-//    @ExceptionHandler(PromotionException.class)
-//    public ResponseEntity<ErrorResponse<String>> handlePromotionException(PromotionException ex) {
-//        return ResponseEntity
-//                .status(HttpStatus.BAD_REQUEST)
-//                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.PROMOTION_ERROR));
-//    }
 
 
     // ==============================

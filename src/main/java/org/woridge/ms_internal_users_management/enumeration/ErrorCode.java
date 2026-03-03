@@ -39,5 +39,8 @@ public enum ErrorCode {
 
     // Resignation
     RESIGNATION_NOT_FOUND,
-    RESIGNATION_ALREADY_EXISTS
+    RESIGNATION_ALREADY_EXISTS,
+
+    //Promotion
+    PROMOTION_ERROR
 }

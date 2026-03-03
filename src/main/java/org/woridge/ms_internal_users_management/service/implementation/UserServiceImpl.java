@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.woridge.ms_internal_users_management.dto.user.CreateUserRequest;
 import org.woridge.ms_internal_users_management.dto.user.CreateUserResponse;
-
-import org.woridge.ms_internal_users_management.dto.User.UserSearchResponse;
+import org.woridge.ms_internal_users_management.dto.user.UserSearchResponse;
+import org.woridge.ms_internal_users_management.dto.user.GetAllUserResponse;
 import org.woridge.ms_internal_users_management.enumeration.Role;
 import org.woridge.ms_internal_users_management.exception.auth.AuthFailedException;
 import org.woridge.ms_internal_users_management.exception.department.DepartmentNotFoundException;
@@ -26,6 +26,9 @@ import org.woridge.ms_internal_users_management.service.UserService;
 import org.woridge.ms_internal_users_management.service.UserValidator;
 import org.woridge.ms_internal_users_management.utils.JwtUtils;
 import org.woridge.ms_internal_users_management.utils.PasswordGenerator;
+
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -46,23 +49,22 @@ public class UserServiceImpl implements UserService {
         userValidator.checkUniqueEmail(request.getEmail());
         userValidator.checkUniqueCIN(request.getCIN());
         // 2) department
-        Department department = departmentRepository.findById(request.getDepartmentId()).orElseThrow(()->new DepartmentNotFoundException("department not found"));
-        Post post =postRepository.findById(request.getPostId()).orElseThrow(()->new PostNotFoundException("post not found"));
+        Department department = departmentRepository.findById(request.getDepartmentId()).orElseThrow(() -> new DepartmentNotFoundException("department not found"));
+        Post post = postRepository.findById(request.getPostId()).orElseThrow(() -> new PostNotFoundException("post not found"));
 
         // 3) generate temp password + encode
-// 3) generate temp password
         String tempPassword = PasswordGenerator.generate();
 
-// ⚠️ DEBUG ONLY
         System.out.println("Generated RAW password: " + tempPassword);
 
-// encode
-        String hashedPassword = passwordEncoder.encode(tempPassword);        Role role = Role.valueOf(request.getRole());
+        String hashedPassword = passwordEncoder.encode(tempPassword);
+        Role role = Role.valueOf(request.getRole());
 
         // 4) map + save
-        User user = userMapper.toEntity(request, department, post, hashedPassword, role);        User saved = userRepository.save(user);
+        User user = userMapper.toUser(request, department, post, hashedPassword, role);
+        User saved = userRepository.save(user);
 
-        CreateUserResponse dto = userMapper.toDto(saved);
+        CreateUserResponse dto = userMapper.toCreateUserResponse(saved);
         // 5️⃣ Récupérer JWT du contexte pour l'envoyer à ms-auth
         String jwtToken = JwtUtils.extractJwt(httpServletRequest);
         try {
@@ -75,8 +77,7 @@ public class UserServiceImpl implements UserService {
         }
         return dto;
     }
-    private String generatePassword()
-    {
+    private String generatePassword() {
         String tempPassword = PasswordGenerator.generate();
         return passwordEncoder.encode(tempPassword);
     }
@@ -92,5 +93,12 @@ public class UserServiceImpl implements UserService {
                 user.getFirstName() + " " + user.getLastName(),
                 user.getDepartment() != null ? user.getDepartment().getName() : ""
         );
+    }
+
+    @Override
+    public List<GetAllUserResponse> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(u -> userMapper.toGetAllUserResponse(u))
+                .toList();
     }
 }

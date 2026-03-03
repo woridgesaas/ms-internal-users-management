@@ -3,17 +3,20 @@ package org.woridge.ms_internal_users_management.mapper;
 import org.springframework.stereotype.Component;
 import org.woridge.ms_internal_users_management.dto.user.CreateUserRequest;
 import org.woridge.ms_internal_users_management.dto.user.CreateUserResponse;
+import org.woridge.ms_internal_users_management.dto.user.GetAllUserResponse;
 import org.woridge.ms_internal_users_management.enumeration.Role;
 import org.woridge.ms_internal_users_management.enumeration.Status;
 import org.woridge.ms_internal_users_management.model.Department;
 import org.woridge.ms_internal_users_management.model.Post;
 import org.woridge.ms_internal_users_management.model.User;
 import org.woridge.ms_internal_users_management.utils.StringUtils;
+
 import java.time.Instant;
+
 @Component
 public class UserMapper {
 
-    public User toEntity(CreateUserRequest req, Department dept, Post post_, String encodedPassword , Role role) {
+    public User toUser(CreateUserRequest req, Department dept, Post post_, String encodedPassword, Role role) {
         return User.builder()
                 .firstName(req.getFirstName().trim())
                 .lastName(req.getLastName().trim())
@@ -31,7 +34,7 @@ public class UserMapper {
                 .build();
     }
 
-    public CreateUserResponse toDto(User user){
+    public CreateUserResponse toCreateUserResponse(User user) {
 
         return CreateUserResponse.builder()
                 .id(user.getId())
@@ -48,6 +51,18 @@ public class UserMapper {
                 .postName(user.getPost().getName())
                 .build();
 
+    }
+
+    public GetAllUserResponse toGetAllUserResponse(User user) {
+        return GetAllUserResponse.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .picturePath(user.getPicturePath())
+                .postName(user.getPost().getName())
+                .status(user.getStatus())
+                .build();
     }
 }
 
