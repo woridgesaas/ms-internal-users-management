@@ -8,13 +8,14 @@ import org.springframework.web.bind.annotation.*;
 import org.woridge.ms_internal_users_management.dto.user.CreateUserRequest;
 import org.woridge.ms_internal_users_management.dto.user.CreateUserResponse;
 import org.woridge.ms_internal_users_management.dto.SuccessResponse;
-import org.woridge.ms_internal_users_management.dto.User.UserSearchResponse;
-import org.woridge.ms_internal_users_management.repository.UserRepository;
+import org.woridge.ms_internal_users_management.dto.user.UserSearchResponse;
+import org.woridge.ms_internal_users_management.dto.user.GetAllUserResponse;
 import org.woridge.ms_internal_users_management.dto.user.EmployeeProfileResponse;
 import org.woridge.ms_internal_users_management.service.DeleteService;
 import org.woridge.ms_internal_users_management.service.EmployeeProfileService;
 import org.woridge.ms_internal_users_management.service.UserService;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -24,11 +25,10 @@ public class UserController {
 
     private final UserService userService;
     private final EmployeeProfileService profileService;
-    private final UserRepository userRepository;
     private final DeleteService deleteService;
 
     @PostMapping
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAnyRole('CEO','HR')")
     public ResponseEntity<SuccessResponse<CreateUserResponse>> createUser(@Valid @RequestBody CreateUserRequest request) {
 
         return ResponseEntity
@@ -42,15 +42,20 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EmployeeProfileResponse> getProfile(
-            @PathVariable UUID id) {
-
+    public ResponseEntity<EmployeeProfileResponse> getProfile(@PathVariable UUID id) {
         return ResponseEntity.ok(profileService.getEmployeeProfile(id));
+    }
+    @GetMapping
+    public ResponseEntity<List<GetAllUserResponse>>getAllUsers()
+    {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('CEO','HR')")
     public ResponseEntity<SuccessResponse<Void>> softDeleteUser(@PathVariable UUID id) {
-        return ResponseEntity.ok(deleteService.softDeleteUser(id));
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .body(deleteService.softDeleteUser(id));
     }
 
 

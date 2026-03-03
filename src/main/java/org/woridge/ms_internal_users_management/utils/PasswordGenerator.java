@@ -10,7 +10,7 @@ public final class PasswordGenerator {
     private static final String SPECIAL = "@/.$^-_&?!,.#%";
 
     private static final String CHARS = UPPER + LOWER + DIGITS + SPECIAL;
-    private PasswordGenerator() {}
+    private PasswordGenerator() {throw new UnsupportedOperationException("You can't instantiate Password Generator utils object");}
 
     public static String generate() {
         StringBuilder sb = new StringBuilder();
