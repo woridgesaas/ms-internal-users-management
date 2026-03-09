@@ -226,4 +226,41 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.RESIGNATION_ALREADY_EXISTS));
     }
 
+    // ==============================
+    // UpdateRequest
+    // ==============================
+    @ExceptionHandler(NoUserUpdateChangesException.class)
+    public  ResponseEntity<ErrorResponse<String>> handleNoUserUpdateChangesException(NoUserUpdateChangesException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.NO_USER_UPDATE_CHANGES));
+    }
+    @ExceptionHandler(PendingRequestAlreadyExistsException.class)
+    public  ResponseEntity<ErrorResponse<String>> handlePendingRequestAlreadyExistsException(PendingRequestAlreadyExistsException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.PENDING_REQUEST_ALREADY_EXISTS));
+    }
+    @ExceptionHandler(RequestAlreadyProcessedException.class)
+    public ResponseEntity<ErrorResponse<String>> handleRequestAlreadyProcessedException(RequestAlreadyProcessedException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.REQUEST_ALREADY_PROCESSED));
+
+    }
+    @ExceptionHandler(UpdateRequestNotFoundException.class)
+    public ResponseEntity<ErrorResponse<String>> handleUpdateRequestNotFoundException(UpdateRequestNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.UPDATE_REQUEST_NOT_FOUND));
+
+    }
+    @ExceptionHandler(InvalidRequestStatus.class)
+    public ResponseEntity<ErrorResponse<String>> handleInvalidRequestStatus(InvalidRequestStatus ex) {
+        return ResponseEntity
+                .status(HttpStatus.UNPROCESSABLE_CONTENT)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.INVALID_REQUEST_STATUS));
+
+    }
+
 }

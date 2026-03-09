@@ -6,6 +6,7 @@ import org.hibernate.annotations.FetchMode;
 import org.woridge.ms_internal_users_management.enumeration.Role;
 import org.woridge.ms_internal_users_management.enumeration.Status;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,6 +36,8 @@ public class User {
     private String picturePath;
     @Enumerated(EnumType.STRING)
     private Role role;
+    @Column(name = "birthdate")
+    private LocalDate birthDate;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="department_id")
     private Department department;
