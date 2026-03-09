@@ -28,6 +28,7 @@ import org.woridge.ms_internal_users_management.utils.JwtUtils;
 import org.woridge.ms_internal_users_management.utils.PasswordGenerator;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -93,6 +94,11 @@ public class UserServiceImpl implements UserService {
                 user.getFirstName() + " " + user.getLastName(),
                 user.getDepartment() != null ? user.getDepartment().getName() : ""
         );
+    }
+    public UUID findIdByCIN(String cin) {
+        return userRepository.findByCIN(cin)
+                .orElseThrow(() -> new UserNotFoundException("user not found"))
+                .getId();
     }
 
     @Override

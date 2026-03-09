@@ -5,15 +5,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.woridge.ms_internal_users_management.dto.user.CreateUserRequest;
-import org.woridge.ms_internal_users_management.dto.user.CreateUserResponse;
+import org.springframework.web.server.ResponseStatusException;
+import org.woridge.ms_internal_users_management.dto.user.*;
 import org.woridge.ms_internal_users_management.dto.SuccessResponse;
-import org.woridge.ms_internal_users_management.dto.user.UserSearchResponse;
-import org.woridge.ms_internal_users_management.dto.user.GetAllUserResponse;
-import org.woridge.ms_internal_users_management.dto.user.EmployeeProfileResponse;
+import org.woridge.ms_internal_users_management.exception.user.InvalidRequestStatus;
 import org.woridge.ms_internal_users_management.service.DeleteService;
 import org.woridge.ms_internal_users_management.service.EmployeeProfileService;
 import org.woridge.ms_internal_users_management.service.UserService;
+import org.woridge.ms_internal_users_management.service.UserUpdateRequestService;
 
 import java.util.List;
 import java.util.UUID;
@@ -26,6 +25,7 @@ public class UserController {
     private final UserService userService;
     private final EmployeeProfileService profileService;
     private final DeleteService deleteService;
+    private final UserUpdateRequestService updateRequestService;
 
     @PostMapping
     @PreAuthorize("hasAnyRole('CEO','HR')")
@@ -58,13 +58,72 @@ public class UserController {
                 .body(deleteService.softDeleteUser(id));
     }
 
-
-
     @GetMapping("/search")
     public ResponseEntity<UserSearchResponse> searchByCin(@RequestParam String cin) {
         return ResponseEntity.ok(userService.searchByCin(cin));
     }
 
+    // ========================
+    // 1️⃣ Employee soumet une demande
+    // ========================
+    @PostMapping("/update-request")
+    @PreAuthorize("hasRole('EMPLOYEE')")
+    public ResponseEntity<SuccessResponse<Void>> submitRequest(
+            @RequestBody CreateUserUpdateRequest dto) {
 
+        UUID userId = updateRequestService.getCurrentUserId();
+        updateRequestService.submitRequest(userId, dto);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(SuccessResponse.createSuccessResponse(
+                        "Update request submitted successfully",
+                        null
+                ));
+    }
+
+    // ==================================
+    // 2️⃣ HR récupère toutes les demandes
+    // ==================================
+    @GetMapping("/update-requests")
+    @PreAuthorize("hasAnyRole('HR','CEO')")
+    public ResponseEntity<SuccessResponse<List<HRUserUpdateRequest>>> getAllRequests() {
+        List<HRUserUpdateRequest> requests = updateRequestService.getAllRequests();
+        return ResponseEntity.ok(
+                SuccessResponse.createSuccessResponse("Requests fetched successfully", requests)
+        );
+    }
+
+    // ========================
+    // 3️⃣ HR récupère les détails d'une demande
+    // ========================
+    @GetMapping("/update-requests/{id}")
+    @PreAuthorize("hasAnyRole('HR','CEO')")
+    public ResponseEntity<SuccessResponse<HRUserUpdateRequestDetails>> getRequestDetails(
+            @PathVariable UUID id) {
+        HRUserUpdateRequestDetails details = updateRequestService.getRequestDetails(id);
+        return ResponseEntity.ok(
+                SuccessResponse.createSuccessResponse("Request details fetched successfully", details)
+        );
+    }
+
+    // ========================
+    // 4️⃣ HR approuve ou rejette une demande
+    // ========================
+    @PatchMapping("/update-requests/{id}/status")
+    @PreAuthorize("hasAnyRole('HR','CEO')")
+    public ResponseEntity<Void> updateRequestStatus(
+            @PathVariable UUID id,
+            @RequestParam String status) {
+
+        UUID hrId = updateRequestService.getCurrentUserId();
+      // refactor dans la suite car je vais ajouter l'update pour ROLE hr,manager,ceo je vais nettoyer ce code apres
+        switch (status.toUpperCase()) {
+            case "APPROVED" -> updateRequestService.approveRequest(id, hrId);
+            case "REJECTED" -> updateRequestService.rejectRequest(id, hrId);
+            default -> throw new InvalidRequestStatus("Invalid status: " + status);
+        }
+
+        return ResponseEntity.noContent().build(); // 204 No Content
+    }
 
 }

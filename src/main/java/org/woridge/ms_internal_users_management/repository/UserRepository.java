@@ -10,7 +10,7 @@ import java.util.UUID;
 
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<User,Long> {
+public interface UserRepository extends JpaRepository<User,UUID> {
     boolean existsByEmailIgnoreCase(String email);
     boolean existsByCINIgnoreCase(String cin);
     long countByDepartmentId(UUID departmentId);
