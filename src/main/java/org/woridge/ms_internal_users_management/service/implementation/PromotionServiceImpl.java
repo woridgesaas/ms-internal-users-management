@@ -6,13 +6,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.woridge.ms_internal_users_management.dto.promotiom.*;
 import org.woridge.ms_internal_users_management.exception.promotion.PromotionException;
 import org.woridge.ms_internal_users_management.exception.user.UserNotFoundException;
+import org.woridge.ms_internal_users_management.mapper.PromotionMapper;
 import org.woridge.ms_internal_users_management.model.*;
 import org.woridge.ms_internal_users_management.repository.*;
 import org.woridge.ms_internal_users_management.service.PromotionService;
+import org.woridge.ms_internal_users_management.service.SalaryService;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -23,151 +26,132 @@ public class PromotionServiceImpl implements PromotionService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final PromotionRepository promotionRepository;
-    private final SalaryHistoryRepository salaryHistoryRepository;
+    private final PromotionMapper mapper;
+    private final SalaryService salaryService;
 
-    // ============================================================
-    // GET EMPLOYEE INFO
-    // ============================================================
+
     @Override
     public PromotionEmployeeInfoResponse getEmployeeInfoByCin(String cin) {
 
-        User user = userRepository.findByCIN(cin)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        User user = findUser(cin);
 
         if (user.getPost() == null)
             throw new PromotionException("User has no assigned post");
+
+        SalaryHistory salary = salaryService.getCurrentSalary(user);
 
         return new PromotionEmployeeInfoResponse(
                 user.getFirstName() + " " + user.getLastName(),
                 user.getDepartment().getName(),
                 user.getPost().getName(),
-                user.getPost().getBaseSalary()
+                salary.getSalary()
         );
     }
 
-    // ============================================================
-    // CREATE PROMOTION
-    // ============================================================
+
     @Override
     public PromotionResponse promoteUser(CreatePromotionRequest request) {
 
-        User user = userRepository.findByCIN(request.getCin())
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
-
-        if (user.getPost() == null)
-            throw new PromotionException("User has no assigned post");
+        User user = findUser(request.getCin());
 
         Post currentPost = user.getPost();
-        BigDecimal currentSalary = currentPost.getBaseSalary();
-
-        BigDecimal bonus = request.getBonus() != null
-                ? request.getBonus()
-                : BigDecimal.ZERO;
-
-        if (bonus.compareTo(BigDecimal.ZERO) < 0)
-            throw new PromotionException("Bonus cannot be negative");
-
-        BigDecimal newSalary = currentSalary.add(bonus);
-
         Post newPost = resolvePost(request.getNewPostId(), currentPost);
 
-        closeCurrentSalary(user);
-        createNewSalary(user, newPost, newSalary);
+        SalaryHistory currentSalaryHistory = salaryService.getCurrentSalary(user);
+
+        BigDecimal previousSalary = currentSalaryHistory.getSalary();
+
+
+        BigDecimal newSalary = calculateSalary(previousSalary, request.getBonus());
+        salaryService.closeCurrentSalary(user);
+
+        salaryService.createNewSalary(user, newPost, newSalary);
 
         Promotion promotion = createPromotion(
                 user,
                 currentPost,
                 newPost,
-                currentSalary,
+                previousSalary,
                 newSalary
         );
 
         user.setPost(newPost);
 
-        return buildResponse(promotion);
+        return mapper.toResponse(promotion);
     }
 
-    // ============================================================
-    // UPDATE PROMOTION
-    // ============================================================
+
+    private User findUser(String cin){
+        return userRepository.findByCIN(cin)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+    }
+
+    private BigDecimal calculateSalary(BigDecimal currentSalary, BigDecimal bonus) {
+
+        if (bonus == null) {
+            return currentSalary;
+        }
+
+        if (bonus.compareTo(BigDecimal.ZERO) < 0) {
+            throw new PromotionException("Bonus cannot be negative");
+        }
+
+        return currentSalary.add(bonus);
+    }
+
     @Override
     public PromotionResponse updatePromotion(UUID id, UpdatePromotionRequest request) {
 
         Promotion promotion = promotionRepository.findById(id)
                 .orElseThrow(() -> new PromotionException("Promotion not found"));
 
-        BigDecimal bonus = request.getBonus() != null
-                ? request.getBonus()
-                : BigDecimal.ZERO;
+        BigDecimal bonus = Optional.ofNullable(request.getBonus())
+                .orElse(BigDecimal.ZERO);
 
         if (bonus.compareTo(BigDecimal.ZERO) < 0)
             throw new PromotionException("Bonus cannot be negative");
 
-        BigDecimal newSalary = promotion.getPreviousSalary().add(bonus);
+        SalaryHistory history = salaryService.getCurrentSalary(promotion.getUser());
 
-        Post newPost = postRepository.findById(request.getNewPostId())
-                .orElseThrow(() -> new PromotionException("Post not found"));
-
+        BigDecimal newSalary = history.getSalary().add(bonus);
+        Post newPost = resolvePost(request.getNewPostId(), promotion.getUser().getPost());
         promotion.setNewSalary(newSalary);
         promotion.setNewPost(newPost.getName());
-        promotion.setPromotionDate(request.getPromotionDate());
 
-        SalaryHistory history = salaryHistoryRepository
-                .findTopByUserOrderByValidFromDesc(promotion.getUser())
-                .orElseThrow(() -> new PromotionException("Salary history not found"));
+        if (request.getPromotionDate() != null) {
+            promotion.setPromotionDate(request.getPromotionDate());
+        }
+
 
         history.setSalary(newSalary);
         history.setPostName(newPost.getName());
 
         promotion.getUser().setPost(newPost);
 
-        return buildResponse(promotion);
+        return mapper.toResponse(promotion);
     }
 
-    // ============================================================
-    // GET ALL
-    // ============================================================
     @Override
     @Transactional(readOnly = true)
     public List<PromotionResponse> getAllPromotions() {
 
         return promotionRepository.findAll()
                 .stream()
-                .map(this::buildResponse)
+                .map(mapper::toResponse)
                 .toList();
     }
 
-    // ============================================================
-    // PRIVATE METHODS
-    // ============================================================
 
     private Post resolvePost(UUID newPostId, Post currentPost) {
 
-        if (newPostId == null)
+        if (newPostId == null) {
             return currentPost;
+        }
 
         return postRepository.findById(newPostId)
                 .orElseThrow(() -> new PromotionException("Post not found"));
     }
 
-    private void closeCurrentSalary(User user) {
-
-        salaryHistoryRepository.findTopByUserOrderByValidFromDesc(user)
-                .ifPresent(history ->
-                        history.setValidTo(LocalDate.now())
-                );
-    }
-
-    private void createNewSalary(User user, Post post, BigDecimal salary) {
-
-        SalaryHistory history = new SalaryHistory();
-        history.setUser(user);
-        history.setSalary(salary);
-        history.setPostName(post.getName());
-        history.setValidFrom(LocalDate.now());
-
-        salaryHistoryRepository.save(history);
-    }
 
     private Promotion createPromotion(
             User user,
@@ -188,17 +172,21 @@ public class PromotionServiceImpl implements PromotionService {
         return promotionRepository.save(promotion);
     }
 
-    private PromotionResponse buildResponse(Promotion promotion) {
 
-        return new PromotionResponse(
-                promotion.getId(),
-                promotion.getUser().getFirstName() + " " + promotion.getUser().getLastName(),
-                promotion.getUser().getDepartment().getName(),
-                promotion.getPreviousPost(),
-                promotion.getNewPost(),
-                promotion.getPreviousSalary(),
-                promotion.getNewSalary(),
-                promotion.getPromotionDate()
-        );
+    public List<SalaryHistoryResponse> getSalaryHistory(String cin) {
+
+        User user = findUser(cin);
+        return salaryService.getSalaryHistory(user)
+                .stream()
+                .map(h -> new SalaryHistoryResponse(
+                        h.getId(),
+                        user.getFirstName() + " " + user.getLastName(),
+                        h.getPostName(),
+                        h.getSalary(),
+                        h.getValidFrom(),
+                        h.getValidTo()
+                ))
+                .toList();
     }
+
 }

@@ -21,6 +21,7 @@ import org.woridge.ms_internal_users_management.exception.holiday.InvalidHoliday
 import org.woridge.ms_internal_users_management.exception.promotion.PromotionException;
 import org.woridge.ms_internal_users_management.exception.resignation.ResignationAlreadyExistsException;
 import org.woridge.ms_internal_users_management.exception.resignation.ResignationNotFoundException;
+import org.woridge.ms_internal_users_management.exception.salary.SalaryNotFoundException;
 import org.woridge.ms_internal_users_management.exception.user.*;
 import java.util.Map;
 
@@ -206,7 +207,16 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.PROMOTION_ERROR));
     }
+// ==============================
+// Salary
+// ==============================
 
+    @ExceptionHandler(SalaryNotFoundException.class)
+    public ResponseEntity<ErrorResponse<String>> handleSalaryNotFoundException(SalaryNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.createErrorResponse(ex.getMessage(), ErrorCode.SALARY_NOT_FOUND));
+    }
 
     // ==============================
     // Resignation

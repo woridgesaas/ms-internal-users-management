@@ -19,7 +19,7 @@ public class Promotion {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    // 🔹 Relation avec User
+    // Relation avec User
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
