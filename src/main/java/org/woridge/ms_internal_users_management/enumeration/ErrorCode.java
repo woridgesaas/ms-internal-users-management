@@ -42,5 +42,8 @@ public enum ErrorCode {
     RESIGNATION_ALREADY_EXISTS,
 
     //Promotion
-    PROMOTION_ERROR
+    PROMOTION_ERROR,
+
+    //Salary
+    SALARY_NOT_FOUND
 }

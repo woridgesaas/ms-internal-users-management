@@ -2,7 +2,7 @@ package org.woridge.ms_internal_users_management.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.woridge.ms_internal_users_management.enumeration.StatusDepartment;
+import org.woridge.ms_internal_users_management.enumeration.Status;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -23,9 +23,9 @@ public class Department {
     @Column(nullable = false, length = 50)
     private String name;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING)//utilisée pour enregistrer un Enum dans la base de données.
     @Column(nullable = false)
-    private StatusDepartment status;
+    private Status status;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -33,13 +33,8 @@ public class Department {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
-    @PrePersist
-    public void prePersist() {
-        createdAt = Instant.now();
-        if (status == null) {
-            status = StatusDepartment.ACTIVE;
-        }
-    }
+    @PrePersist // méthode appelée automatiquement avant INSERT dans la base.
+    public void prePersist() { createdAt = Instant.now();}
 
     @PreUpdate
     public void preUpdate() {

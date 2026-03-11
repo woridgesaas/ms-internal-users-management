@@ -1,7 +1,6 @@
 package org.woridge.ms_internal_users_management.service;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+
 import org.woridge.ms_internal_users_management.dto.promotiom.*;
 
 import java.util.List;
@@ -16,5 +15,6 @@ public interface PromotionService {
     PromotionResponse updatePromotion(UUID id, UpdatePromotionRequest request);
 
     List<PromotionResponse> getAllPromotions();
-   // void deletePromotion(UUID id);
+
+     List<SalaryHistoryResponse> getSalaryHistory(String cin);
 }

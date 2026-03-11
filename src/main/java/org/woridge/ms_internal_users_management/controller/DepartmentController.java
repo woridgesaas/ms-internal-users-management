@@ -16,33 +16,29 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/departments")
 @AllArgsConstructor
+@PreAuthorize("hasRole('HR')")
 public class DepartmentController {
 
     private final DepartmentService service;
 
-    //  Si seul HR peut créer département, garde cette annotation
     @PostMapping
-    @PreAuthorize("hasRole('HR')")
-    public ResponseEntity<Void> create(
-            @Valid @RequestBody CreateDepartmentRequest request) {
-
+    //@RequestBody(Spring convertit le JSON envoyé par le client en objet Java.)
+    //@valid(ctive la validation automatique du DTO.)
+    public ResponseEntity<Void> create(@Valid @RequestBody CreateDepartmentRequest request) {
         service.createDepartment(request);
-        return ResponseEntity.status(201).build(); //  201 CREATED
+        return ResponseEntity.status(201).build();
     }
 
     @GetMapping
     public ResponseEntity<List<DepartmentResponse>> getAll() {
-        return ResponseEntity.ok(service.getAllDepartments()); //  200 OK
+        return ResponseEntity.ok(service.getAllDepartments());
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('HR')")
-    public ResponseEntity<Void> update(
-            @PathVariable UUID id,
-            @Valid @RequestBody UpdateDepartmentRequest request) {
+    public ResponseEntity<Void> update(@PathVariable UUID id, @Valid @RequestBody UpdateDepartmentRequest request) {
 
         service.updateDepartment(id, request);
-        return ResponseEntity.noContent().build(); //  204 NO CONTENT
+        return ResponseEntity.noContent().build();
     }
 
 

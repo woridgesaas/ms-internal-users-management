@@ -15,12 +15,13 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/promotions")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('HR')")
+
 public class PromotionController {
 
     private final PromotionService promotionService;
 
     @GetMapping("/employee/{cin}")
-    @PreAuthorize("hasRole('HR')")
     public ResponseEntity<PromotionEmployeeInfoResponse> getEmployeeInfo(
             @PathVariable String cin) {
 
@@ -30,7 +31,6 @@ public class PromotionController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('HR')")
     public ResponseEntity<PromotionResponse> promote(
             @Valid @RequestBody CreatePromotionRequest request) {
 
@@ -40,7 +40,6 @@ public class PromotionController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('HR')")
     public ResponseEntity<PromotionResponse> updatePromotion(
             @PathVariable UUID id,
             @Valid @RequestBody UpdatePromotionRequest request) {
@@ -51,12 +50,20 @@ public class PromotionController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('HR')")
     public ResponseEntity<List<PromotionResponse>> getAllPromotions() {
 
         return ResponseEntity.ok(
                 promotionService.getAllPromotions()
         );
     }
-   //delete
+
+    @GetMapping("/salary-history/{cin}")
+    public ResponseEntity<List<SalaryHistoryResponse>> getSalaryHistory(
+            @PathVariable String cin) {
+
+        return ResponseEntity.ok(
+                promotionService.getSalaryHistory(cin)
+        );
+    }
+
 }

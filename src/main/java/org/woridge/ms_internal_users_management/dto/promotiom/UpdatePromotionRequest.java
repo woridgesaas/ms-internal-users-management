@@ -14,12 +14,11 @@ import java.util.UUID;
 @Setter
 public class UpdatePromotionRequest {
 
-    @NotNull
     private UUID newPostId;
 
     @PositiveOrZero
     private BigDecimal bonus;
 
-    @NotNull
+
     private LocalDate promotionDate;
 }
