@@ -1,28 +1,17 @@
 package org.woridge.ms_internal_users_management.mapper;
 
-import org.woridge.ms_internal_users_management.dto.user.CreateUserUpdateRequest;
 import org.woridge.ms_internal_users_management.dto.user.FieldChange;
 import org.woridge.ms_internal_users_management.dto.user.HRUserUpdateRequest;
 import org.woridge.ms_internal_users_management.dto.user.HRUserUpdateRequestDetails;
 import org.woridge.ms_internal_users_management.model.RequestFieldChange;
 import org.woridge.ms_internal_users_management.model.User;
 import org.woridge.ms_internal_users_management.model.UserUpdateRequest;
-import org.woridge.ms_internal_users_management.service.UserUpdateChangeDetector;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class UserUpdateRequestMapper {
 
-    private UserUpdateRequestMapper() {}
-
-    // Create UserUpdateRequest entity with field changes
-
-    public static UserUpdateRequest toEntity(
-            User user,
-            List<RequestFieldChange> changes
-    ) {
+    public static UserUpdateRequest toUserUpdateRequest(User user, List<RequestFieldChange> changes) {
 
         UserUpdateRequest request = new UserUpdateRequest();
         request.setUserId(user.getId());
@@ -35,10 +24,8 @@ public class UserUpdateRequestMapper {
 
         return request;
     }
-    /*
-     * LIST DTO (for HR table)
-     */
-    public static HRUserUpdateRequest toListDTO(UserUpdateRequest entity, User user) {
+
+    public static HRUserUpdateRequest toHRUserUpdateRequest(UserUpdateRequest entity, User user) {
 
         return new HRUserUpdateRequest(
                 entity.getId(),
@@ -50,14 +37,11 @@ public class UserUpdateRequestMapper {
         );
     }
 
-    /*
-     * DETAILS DTO (for HR view)
-     */
-    public static HRUserUpdateRequestDetails toDetailsDTO(UserUpdateRequest entity, User user) {
+    public static HRUserUpdateRequestDetails toHRUserUpdateRequestDetails(UserUpdateRequest entity, User user) {
 
         List<FieldChange> changes = entity.getFieldChanges()
                 .stream()
-                .map(UserUpdateRequestMapper::toFieldChangeDTO)
+                .map(UserUpdateRequestMapper::toFieldChange)
                 .toList();
 
         return new HRUserUpdateRequestDetails(
@@ -70,10 +54,10 @@ public class UserUpdateRequestMapper {
         );
     }
 
-    /*
-     * Convert RequestFieldChange entity to DTO
-     */
-    private static FieldChange toFieldChangeDTO(RequestFieldChange change) {
+
+    // Convert RequestFieldChange entity to DTO
+
+    private static FieldChange toFieldChange(RequestFieldChange change) {
 
         return new FieldChange(
                 change.getFieldName(),

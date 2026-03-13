@@ -14,18 +14,18 @@ import java.util.Objects;
 public class UserUpdateChangeDetectorImpl implements UserUpdateChangeDetector {
 
     @Override
-    public List<RequestFieldChange> detect(User user, CreateUserUpdateRequest dto) {
+    public List<RequestFieldChange> detect(User user, CreateUserUpdateRequest request) {
 
         List<RequestFieldChange> changes = new ArrayList<>();
 
-        addIfChanged(changes, "firstName", user.getFirstName(), dto.firstName());
-        addIfChanged(changes, "lastName", user.getLastName(), dto.lastName());
-        addIfChanged(changes, "email", user.getEmail(), dto.email());
-        addIfChanged(changes, "phone", user.getPhoneNumber(), dto.phone());
-        addIfChanged(changes, "address", user.getAddress(), dto.address());
-        addIfChanged(changes, "cin", user.getCIN(), dto.cin());
-        addIfChanged(changes, "profileImage", user.getPicturePath(), dto.profileImageUrl());
-        addIfChanged(changes, "birthDate", user.getBirthDate(), dto.birthDate());
+        addIfChanged(changes, "firstName", user.getFirstName(), request.firstName());
+        addIfChanged(changes, "lastName", user.getLastName(), request.lastName());
+        addIfChanged(changes, "email", user.getEmail(), request.email());
+        addIfChanged(changes, "phone", user.getPhoneNumber(), request.phone());
+        addIfChanged(changes, "address", user.getAddress(), request.address());
+        addIfChanged(changes, "cin", user.getCIN(), request.cin());
+        addIfChanged(changes, "profileImage", user.getPicturePath(), request.profileImageUrl());
+        addIfChanged(changes, "birthDate", user.getBirthDate(), request.birthDate());
 
         return changes;
     }

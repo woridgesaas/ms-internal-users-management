@@ -42,14 +42,15 @@ public class UserUpdateRequestServiceImpl implements UserUpdateRequestService {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
+
         // 1 detect changes
         List<RequestFieldChange> changes = userUpdateChangeDetector.detect(user, dto);
         if (changes.isEmpty()) {
             throw new NoUserUpdateChangesException("No changes detected in the update request");
         }
+
         // 2 map entity
-        UserUpdateRequest request =
-                UserUpdateRequestMapper.toEntity(user, changes);
+        UserUpdateRequest request = UserUpdateRequestMapper.toUserUpdateRequest(user, changes);
 
         requestRepository.save(request);
     }
@@ -65,7 +66,7 @@ public class UserUpdateRequestServiceImpl implements UserUpdateRequestService {
                     User user = userRepository.findById(request.getUserId())
                             .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-                    return UserUpdateRequestMapper.toListDTO(request, user);
+                    return UserUpdateRequestMapper.toHRUserUpdateRequest(request, user);
                 })
                 .toList();
     }
@@ -73,21 +74,21 @@ public class UserUpdateRequestServiceImpl implements UserUpdateRequestService {
     @Override
     public HRUserUpdateRequestDetails getRequestDetails(UUID requestId) {
 
-        UserUpdateRequest request = getRequestOrThrow(requestId);
+        UserUpdateRequest request = getRequest(requestId);
 
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        return UserUpdateRequestMapper.toDetailsDTO(request, user);
+        return UserUpdateRequestMapper.toHRUserUpdateRequestDetails(request, user);
     }
 
     @Override
     @Transactional
     public void approveRequest(UUID requestId, UUID hrId) {
 
-        UserUpdateRequest request = getRequestOrThrow(requestId);
+        UserUpdateRequest request = getRequest(requestId);
 
-        validateRequestIsPending(request);
+        checkRequestStatus(request);
 
         User user = userRepository.findWithFullProfileById(request.getUserId())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
@@ -107,9 +108,9 @@ public class UserUpdateRequestServiceImpl implements UserUpdateRequestService {
     @Transactional
     public void rejectRequest(UUID requestId, UUID hrId) {
 
-        UserUpdateRequest request = getRequestOrThrow(requestId);
+        UserUpdateRequest request = getRequest(requestId);
 
-        validateRequestIsPending(request);
+        checkRequestStatus(request);
 
         request.setStatus(RequestStatus.REJECTED);
         request.setProcessedBy(hrId);
@@ -158,22 +159,19 @@ public class UserUpdateRequestServiceImpl implements UserUpdateRequestService {
     );
 
     private void validateNoPendingRequest(UUID userId) {
-
-        boolean exists = requestRepository.existsByUserIdAndStatus(userId, RequestStatus.PENDING);
-
-        if (exists) {
+        if (requestRepository.existsByUserIdAndStatus(userId, RequestStatus.PENDING)) {
             throw new PendingRequestAlreadyExistsException("User already has a pending update request");
         }
     }
 
-    private void validateRequestIsPending(UserUpdateRequest request) {
+    private void checkRequestStatus(UserUpdateRequest request) {
 
         if (request.getStatus() != RequestStatus.PENDING) {
             throw new RequestAlreadyProcessedException("Request already processed");
         }
     }
 
-    private UserUpdateRequest getRequestOrThrow(UUID requestId) {
+    private UserUpdateRequest getRequest(UUID requestId) {
 
         return requestRepository.findById(requestId)
                 .orElseThrow(() -> new UpdateRequestNotFoundException("Update request not found"));

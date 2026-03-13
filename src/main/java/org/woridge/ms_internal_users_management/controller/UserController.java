@@ -1,11 +1,11 @@
 package org.woridge.ms_internal_users_management.controller;
+
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import org.woridge.ms_internal_users_management.dto.user.*;
 import org.woridge.ms_internal_users_management.dto.SuccessResponse;
 import org.woridge.ms_internal_users_management.exception.user.InvalidRequestStatus;
@@ -45,11 +45,12 @@ public class UserController {
     public ResponseEntity<EmployeeProfileResponse> getProfile(@PathVariable UUID id) {
         return ResponseEntity.ok(profileService.getEmployeeProfile(id));
     }
+
     @GetMapping
-    public ResponseEntity<List<GetAllUserResponse>>getAllUsers()
-    {
+    public ResponseEntity<List<GetAllUserResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('CEO','HR')")
     public ResponseEntity<SuccessResponse<Void>> softDeleteUser(@PathVariable UUID id) {
@@ -63,16 +64,12 @@ public class UserController {
         return ResponseEntity.ok(userService.searchByCin(cin));
     }
 
-    // ========================
-    // 1️⃣ Employee soumet une demande
-    // ========================
     @PostMapping("/update-request")
     @PreAuthorize("hasRole('EMPLOYEE')")
-    public ResponseEntity<SuccessResponse<Void>> submitRequest(
-            @RequestBody CreateUserUpdateRequest dto) {
+    public ResponseEntity<SuccessResponse<Void>> submitRequest(@RequestBody CreateUserUpdateRequest request) {
 
         UUID userId = updateRequestService.getCurrentUserId();
-        updateRequestService.submitRequest(userId, dto);
+        updateRequestService.submitRequest(userId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(SuccessResponse.createSuccessResponse(
@@ -81,49 +78,46 @@ public class UserController {
                 ));
     }
 
-    // ==================================
-    // 2️⃣ HR récupère toutes les demandes
-    // ==================================
     @GetMapping("/update-requests")
     @PreAuthorize("hasAnyRole('HR','CEO')")
     public ResponseEntity<SuccessResponse<List<HRUserUpdateRequest>>> getAllRequests() {
         List<HRUserUpdateRequest> requests = updateRequestService.getAllRequests();
         return ResponseEntity.ok(
-                SuccessResponse.createSuccessResponse("Requests fetched successfully", requests)
+                SuccessResponse.createSuccessResponse(
+                        "Requests fetched successfully",
+                        requests)
         );
     }
 
-    // ========================
-    // 3️⃣ HR récupère les détails d'une demande
-    // ========================
+
     @GetMapping("/update-requests/{id}")
     @PreAuthorize("hasAnyRole('HR','CEO')")
-    public ResponseEntity<SuccessResponse<HRUserUpdateRequestDetails>> getRequestDetails(
-            @PathVariable UUID id) {
+    public ResponseEntity<SuccessResponse<HRUserUpdateRequestDetails>> getRequestDetails(@PathVariable UUID id) {
         HRUserUpdateRequestDetails details = updateRequestService.getRequestDetails(id);
         return ResponseEntity.ok(
-                SuccessResponse.createSuccessResponse("Request details fetched successfully", details)
+                SuccessResponse.createSuccessResponse(
+                        "Request details fetched successfully",
+                        details)
         );
     }
 
-    // ========================
-    // 4️⃣ HR approuve ou rejette une demande
-    // ========================
-    @PatchMapping("/update-requests/{id}/status")
+    @PatchMapping("/{id}/{status}")
     @PreAuthorize("hasAnyRole('HR','CEO')")
-    public ResponseEntity<Void> updateRequestStatus(
-            @PathVariable UUID id,
-            @RequestParam String status) {
+    public ResponseEntity<SuccessResponse<Void>> updateRequestStatus(@PathVariable UUID id, @PathVariable String status) {
 
         UUID hrId = updateRequestService.getCurrentUserId();
-      // refactor dans la suite car je vais ajouter l'update pour ROLE hr,manager,ceo je vais nettoyer ce code apres
         switch (status.toUpperCase()) {
             case "APPROVED" -> updateRequestService.approveRequest(id, hrId);
             case "REJECTED" -> updateRequestService.rejectRequest(id, hrId);
             default -> throw new InvalidRequestStatus("Invalid status: " + status);
         }
-
-        return ResponseEntity.noContent().build(); // 204 No Content
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .body(
+                        SuccessResponse.createSuccessResponse(
+                                "Request details fetched successfully",
+                                null)
+                );
     }
 
 }
