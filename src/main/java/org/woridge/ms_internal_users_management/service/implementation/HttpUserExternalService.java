@@ -13,7 +13,7 @@ import org.woridge.ms_internal_users_management.service.UserExternalService;
 public class HttpUserExternalService implements UserExternalService {
 
     private final WebClient webClient;
-    private final String authServiceUrl = "http://localhost:5265/api/user";
+    private final String authServiceUrl = "http://localhost:5265/api/auth/user";
 
     @Override
     public void createUser(User user, String hashedPassword, String jwtToken) {
