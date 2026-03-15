@@ -7,9 +7,10 @@ spring:
     jwt:
       secret-key: ${SECRET_KEY}
   jpa:
-    show-sql: true
     hibernate:
       ddl-auto: validate
+  profiles:
+    active: ${ACTIVE_PROFILE}
 
 server:
   port: 8081

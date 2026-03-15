@@ -9,14 +9,17 @@ import org.woridge.ms_internal_users_management.exception.auth.UnauthenticatedUs
 public final class SecurityUtils {
 
     private SecurityUtils() {
+
         throw new UnsupportedOperationException("You can't instantiate security utils object");
     }
 
     public static String getCurrentUserCIN() {
+
         return getAuthentication().getName();
     }
 
     public static String getCurrentUserRole() {
+
         return getAuthentication()
                 .getAuthorities()
                 .stream()
@@ -35,5 +38,4 @@ public final class SecurityUtils {
 
         return authentication;
     }
-
 }

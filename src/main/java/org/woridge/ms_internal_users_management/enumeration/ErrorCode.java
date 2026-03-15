@@ -2,6 +2,15 @@ package org.woridge.ms_internal_users_management.enumeration;
 
 public enum ErrorCode {
 
+    // Request validation (@Valid)
+    REQUEST_VALIDATION_FAILED,
+
+    // Illegal argument
+    INVALID_ARGUMENT,
+
+    // Enumeration value
+    INVALID_ENUM_VALUE,
+
     // Authentication / Authorization
     UNAUTHORIZED,
     ACCESS_DENIED,
@@ -27,6 +36,9 @@ public enum ErrorCode {
 
     // Post
     POST_NOT_FOUND,
+    POST_NAME_DUPLICATED,
+    POST_ALREADY_EXISTS,
+    POST_ID_MISMATCH,
 
     // Holiday
     HOLIDAY_NOT_FOUND,
@@ -48,7 +60,9 @@ public enum ErrorCode {
     RESIGNATION_ALREADY_EXISTS,
 
     //Promotion
-    PROMOTION_ERROR,
+    USER_HAS_NO_ASSIGNED_POST,
+    PROMOTION_NOT_FOUND,
+    PROMOTION_ID_MISMATCH,
 
     //Salary
     SALARY_NOT_FOUND
