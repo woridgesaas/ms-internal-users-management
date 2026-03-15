@@ -1,10 +1,13 @@
 package org.woridge.ms_internal_users_management.service.implementation;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.woridge.ms_internal_users_management.dto.promotiom.*;
-import org.woridge.ms_internal_users_management.exception.promotion.PromotionException;
+import org.woridge.ms_internal_users_management.exception.post.PostNotFoundException;
+import org.woridge.ms_internal_users_management.exception.promotion.UserHasNoAssignedPostException;
+import org.woridge.ms_internal_users_management.exception.promotion.PromotionIdNotMatchedException;
+import org.woridge.ms_internal_users_management.exception.promotion.PromotionNotFoundException;
 import org.woridge.ms_internal_users_management.exception.user.UserNotFoundException;
 import org.woridge.ms_internal_users_management.mapper.PromotionMapper;
 import org.woridge.ms_internal_users_management.model.*;
@@ -13,180 +16,125 @@ import org.woridge.ms_internal_users_management.service.PromotionService;
 import org.woridge.ms_internal_users_management.service.SalaryService;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
+@AllArgsConstructor
 @Transactional
 public class PromotionServiceImpl implements PromotionService {
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final PromotionRepository promotionRepository;
-    private final PromotionMapper mapper;
     private final SalaryService salaryService;
 
-
     @Override
-    public PromotionEmployeeInfoResponse getEmployeeInfoByCin(String cin) {
+    public CreatePromotionResponse promoteUser(CreatePromotionRequest createPromotionRequest) {
 
-        User user = findUser(cin);
-
-        if (user.getPost() == null)
-            throw new PromotionException("User has no assigned post");
-
-        SalaryHistory salary = salaryService.getCurrentSalary(user);
-
-        return new PromotionEmployeeInfoResponse(
-                user.getFirstName() + " " + user.getLastName(),
-                user.getDepartment().getName(),
-                user.getPost().getName(),
-                salary.getSalary()
-        );
-    }
-
-
-    @Override
-    public PromotionResponse promoteUser(CreatePromotionRequest request) {
-
-        User user = findUser(request.getCin());
+        User user = findUser(createPromotionRequest.CIN());
 
         Post currentPost = user.getPost();
-        Post newPost = resolvePost(request.getNewPostId(), currentPost);
+
+        Post newPost = getNewPost(createPromotionRequest.newPostId(), currentPost);
 
         SalaryHistory currentSalaryHistory = salaryService.getCurrentSalary(user);
 
-        BigDecimal previousSalary = currentSalaryHistory.getSalary();
+        BigDecimal currentSalary = currentSalaryHistory.getSalary();
 
+        BigDecimal newSalary = currentSalary.add(createPromotionRequest.bonus());
 
-        BigDecimal newSalary = calculateSalary(previousSalary, request.getBonus());
         salaryService.closeCurrentSalary(user);
 
         salaryService.createNewSalary(user, newPost, newSalary);
 
-        Promotion promotion = createPromotion(
-                user,
-                currentPost,
-                newPost,
-                previousSalary,
-                newSalary
-        );
+        Promotion promotion = PromotionMapper.toPromotion(user, currentPost, newPost, currentSalary, newSalary, createPromotionRequest.promotionDate());
 
         user.setPost(newPost);
 
-        return mapper.toResponse(promotion);
-    }
+        promotionRepository.save(promotion);
 
-
-    private User findUser(String cin){
-        return userRepository.findByCIN(cin)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
-    }
-
-    private BigDecimal calculateSalary(BigDecimal currentSalary, BigDecimal bonus) {
-
-        if (bonus == null) {
-            return currentSalary;
-        }
-
-        if (bonus.compareTo(BigDecimal.ZERO) < 0) {
-            throw new PromotionException("Bonus cannot be negative");
-        }
-
-        return currentSalary.add(bonus);
+        return PromotionMapper.toCreatePromotionResponse(promotion);
     }
 
     @Override
-    public PromotionResponse updatePromotion(UUID id, UpdatePromotionRequest request) {
+    public void updatePromotion(UUID id, UpdatePromotionRequest updatePromotionRequest) {
 
-        Promotion promotion = promotionRepository.findById(id)
-                .orElseThrow(() -> new PromotionException("Promotion not found"));
+        if (!id.equals(updatePromotionRequest.promotionId())) {
 
-        BigDecimal bonus = Optional.ofNullable(request.getBonus())
-                .orElse(BigDecimal.ZERO);
-
-        if (bonus.compareTo(BigDecimal.ZERO) < 0)
-            throw new PromotionException("Bonus cannot be negative");
-
-        SalaryHistory history = salaryService.getCurrentSalary(promotion.getUser());
-
-        BigDecimal newSalary = history.getSalary().add(bonus);
-        Post newPost = resolvePost(request.getNewPostId(), promotion.getUser().getPost());
-        promotion.setNewSalary(newSalary);
-        promotion.setNewPost(newPost.getName());
-
-        if (request.getPromotionDate() != null) {
-            promotion.setPromotionDate(request.getPromotionDate());
+            throw new PromotionIdNotMatchedException("Promotion id aren't matched");
         }
 
+        Promotion promotion = promotionRepository.findById(id)
+                .orElseThrow(() -> new PromotionNotFoundException("Promotion with the following id : " + id + " not found"));
 
-        history.setSalary(newSalary);
-        history.setPostName(newPost.getName());
+        SalaryHistory salaryHistory = salaryService.getCurrentSalary(promotion.getUser());
 
-        promotion.getUser().setPost(newPost);
+        BigDecimal newSalary = salaryHistory.getSalary().add(updatePromotionRequest.bonus());
 
-        return mapper.toResponse(promotion);
+        Post newPost = getNewPost(updatePromotionRequest.newPostId(), promotion.getUser().getPost());
+
+        if (!hasPromotionChanged(promotion, newSalary, newPost, updatePromotionRequest)) {
+
+            return;
+        }
+
+        PromotionMapper.updatePromotion(promotion, salaryHistory, newPost, newSalary, updatePromotionRequest);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<PromotionResponse> getAllPromotions() {
+    public List<GetAllPromotionsResponse> getAllPromotions() {
 
         return promotionRepository.findAll()
                 .stream()
-                .map(mapper::toResponse)
+                .map(PromotionMapper::toGetAllPromotionsResponse)
                 .toList();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public UserPromotionInfoResponse getUserPromotionInfo(String CIN) {
 
-    private Post resolvePost(UUID newPostId, Post currentPost) {
+        User user = findUser(CIN);
 
-        if (newPostId == null) {
-            return currentPost;
+        if (user.getPost() == null) {
+            throw new UserHasNoAssignedPostException("User with the following CIN : " + CIN + " has no assigned post");
         }
 
-        return postRepository.findById(newPostId)
-                .orElseThrow(() -> new PromotionException("Post not found"));
+        SalaryHistory salaryHistory = salaryService.getCurrentSalary(user);
+
+        return PromotionMapper.toUserPromotionInfoResponse(user, salaryHistory);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<SalaryHistoryResponse> getSalaryHistory(String CIN) {
 
-    private Promotion createPromotion(
-            User user,
-            Post previousPost,
-            Post newPost,
-            BigDecimal previousSalary,
-            BigDecimal newSalary
-    ) {
+        User user = findUser(CIN);
 
-        Promotion promotion = new Promotion();
-        promotion.setUser(user);
-        promotion.setPreviousSalary(previousSalary);
-        promotion.setNewSalary(newSalary);
-        promotion.setPreviousPost(previousPost.getName());
-        promotion.setNewPost(newPost.getName());
-        promotion.setPromotionDate(LocalDate.now());
-
-        return promotionRepository.save(promotion);
-    }
-
-
-    public List<SalaryHistoryResponse> getSalaryHistory(String cin) {
-
-        User user = findUser(cin);
         return salaryService.getSalaryHistory(user)
                 .stream()
-                .map(h -> new SalaryHistoryResponse(
-                        h.getId(),
-                        user.getFirstName() + " " + user.getLastName(),
-                        h.getPostName(),
-                        h.getSalary(),
-                        h.getValidFrom(),
-                        h.getValidTo()
-                ))
+                .map(salaryHistory -> PromotionMapper.toSalaryHistoryResponse(salaryHistory, user))
                 .toList();
     }
 
+    private User findUser(String CIN) {
+
+        return userRepository.findByCIN(CIN).orElseThrow(() ->
+                new UserNotFoundException("User with the following CIN : " + CIN + " not found"));
+    }
+
+    private Post getNewPost(UUID newPostId, Post currentPost) {
+
+        return newPostId == null ? currentPost : postRepository.findById(newPostId).orElseThrow(() ->
+                new PostNotFoundException("Post with the following id : " + newPostId + "not found"));
+    }
+
+    private boolean hasPromotionChanged(Promotion promotion, BigDecimal newSalary, Post newPost, UpdatePromotionRequest updatePromotionRequest) {
+
+        return promotion.getNewSalary().compareTo(newSalary) != 0
+                || !promotion.getNewPost().getId().equals(newPost.getId())
+                || !promotion.getPromotionDate().equals(updatePromotionRequest.promotionDate());
+    }
 }

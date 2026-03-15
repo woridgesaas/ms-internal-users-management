@@ -1,6 +1,5 @@
 package org.woridge.ms_internal_users_management.repository;
 
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.woridge.ms_internal_users_management.enumeration.Status;
@@ -9,8 +8,6 @@ import org.woridge.ms_internal_users_management.model.User;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User,UUID> {
     boolean existsByEmailIgnoreCase(String email);

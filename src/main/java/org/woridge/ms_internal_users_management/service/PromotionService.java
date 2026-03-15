@@ -1,6 +1,5 @@
 package org.woridge.ms_internal_users_management.service;
 
-
 import org.woridge.ms_internal_users_management.dto.promotiom.*;
 
 import java.util.List;
@@ -8,13 +7,13 @@ import java.util.UUID;
 
 public interface PromotionService {
 
-    PromotionEmployeeInfoResponse getEmployeeInfoByCin(String cin);
+    CreatePromotionResponse promoteUser(CreatePromotionRequest createPromotionRequest);
 
-    PromotionResponse promoteUser(CreatePromotionRequest request);
+    void updatePromotion(UUID id, UpdatePromotionRequest updatePromotionRequest);
 
-    PromotionResponse updatePromotion(UUID id, UpdatePromotionRequest request);
+    List<GetAllPromotionsResponse> getAllPromotions();
 
-    List<PromotionResponse> getAllPromotions();
+    UserPromotionInfoResponse getUserPromotionInfo(String CIN);
 
-     List<SalaryHistoryResponse> getSalaryHistory(String cin);
+    List<SalaryHistoryResponse> getSalaryHistory(String CIN);
 }
