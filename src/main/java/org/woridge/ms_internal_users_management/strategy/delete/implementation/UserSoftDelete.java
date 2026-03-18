@@ -1,4 +1,4 @@
-package org.woridge.ms_internal_users_management.strategy.implementation;
+package org.woridge.ms_internal_users_management.strategy.delete.implementation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -8,7 +8,7 @@ import org.woridge.ms_internal_users_management.enumeration.Status;
 import org.woridge.ms_internal_users_management.exception.user.UserOperationException;
 import org.woridge.ms_internal_users_management.model.User;
 import org.woridge.ms_internal_users_management.repository.UserRepository;
-import org.woridge.ms_internal_users_management.strategy.DeleteStrategy;
+import org.woridge.ms_internal_users_management.strategy.delete.DeleteStrategy;
 
 import java.time.Instant;
 import java.util.UUID;
