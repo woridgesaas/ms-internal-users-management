@@ -11,6 +11,8 @@ import org.woridge.ms_internal_users_management.exception.auth.AuthFailedExcepti
 import org.woridge.ms_internal_users_management.exception.department.DepartmentNotFoundException;
 import org.woridge.ms_internal_users_management.exception.post.PostNotFoundException;
 import org.woridge.ms_internal_users_management.exception.user.UserNotFoundException;
+import org.woridge.ms_internal_users_management.integration.auth.AuthServiceClient;
+import org.woridge.ms_internal_users_management.messaging.publisher.NotificationEventPublisher;
 import org.woridge.ms_internal_users_management.model.Department;
 import org.woridge.ms_internal_users_management.model.Post;
 import org.woridge.ms_internal_users_management.model.User;
@@ -18,7 +20,6 @@ import org.woridge.ms_internal_users_management.mapper.UserMapper;
 import org.woridge.ms_internal_users_management.repository.DepartmentRepository;
 import org.woridge.ms_internal_users_management.repository.PostRepository;
 import org.woridge.ms_internal_users_management.repository.UserRepository;
-import org.woridge.ms_internal_users_management.service.UserExternalService;
 import org.woridge.ms_internal_users_management.service.UserService;
 import org.woridge.ms_internal_users_management.service.UserValidator;
 import org.woridge.ms_internal_users_management.utils.JwtUtils;
@@ -37,8 +38,9 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final UserValidator userValidator;
-    private final UserExternalService userExternalService;
     private final HttpServletRequest httpServletRequest;
+    private final AuthServiceClient authServiceClient;
+    private final NotificationEventPublisher notificationEventPublisher;
 
     @Transactional
     public CreateUserResponse createUser(CreateUserRequest request) {
@@ -52,9 +54,6 @@ public class UserServiceImpl implements UserService {
 
         // 3) generate temp password + encode
         String tempPassword = PasswordGenerator.generate();
-
-        System.out.println("Generated RAW password: " + tempPassword);
-
         String hashedPassword = passwordEncoder.encode(tempPassword);
         Role role = Role.valueOf(request.getRole());
 
@@ -67,17 +66,14 @@ public class UserServiceImpl implements UserService {
         String jwtToken = JwtUtils.extractJwt(httpServletRequest);
         try {
             // 6️⃣ Appel du service externe
-            userExternalService.createUser(saved, hashedPassword, jwtToken);
+            authServiceClient.createUser(saved, hashedPassword, jwtToken);
+            notificationEventPublisher.publishUserCreated(saved, tempPassword);
         } catch (Exception ex) {
             // 7️⃣ Rollback si échec ms-auth
             userRepository.delete(saved);
             throw new AuthFailedException("Auth service failed. User rollback executed.");
         }
         return dto;
-    }
-    private String generatePassword() {
-        String tempPassword = PasswordGenerator.generate();
-        return passwordEncoder.encode(tempPassword);
     }
 
     @Override
