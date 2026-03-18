@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface ResignationService {
 
-    ResignationResponse create(ResignationCreateRequest request);
+    ResignationResponse create(ResignationCreateRequest request, String companyName);
 
     ResignationResponse getById(UUID id);
 

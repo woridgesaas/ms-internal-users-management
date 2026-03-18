@@ -2,6 +2,7 @@ package org.woridge.ms_internal_users_management.service.implementation;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.woridge.ms_internal_users_management.dto.resignation.ResignationCreateRequest;
 import org.woridge.ms_internal_users_management.dto.resignation.ResignationResponse;
@@ -10,6 +11,8 @@ import org.woridge.ms_internal_users_management.exception.resignation.Resignatio
 import org.woridge.ms_internal_users_management.exception.resignation.ResignationNotFoundException;
 import org.woridge.ms_internal_users_management.exception.user.UserNotFoundException;
 import org.woridge.ms_internal_users_management.mapper.ResignationMapper;
+import org.woridge.ms_internal_users_management.messaging.config.RabbitMQConfig;
+import org.woridge.ms_internal_users_management.messaging.event.ResignationCreatedEvent;
 import org.woridge.ms_internal_users_management.model.Resignation;
 import org.woridge.ms_internal_users_management.model.User;
 import org.woridge.ms_internal_users_management.repository.ResignationRepository;
@@ -25,23 +28,43 @@ import java.util.UUID;
 public class ResignationServiceImpl implements ResignationService {
 
     private final ResignationRepository resignationRepository;
-    private final UserRepository userRepository;
-    private final ResignationMapper resignationMapper;
+    private final UserRepository        userRepository;
+    private final ResignationMapper     resignationMapper;
+    private final RabbitTemplate        rabbitTemplate;      // ← ajouter
 
     @Override
-    public ResignationResponse create(ResignationCreateRequest request) {
+    public ResignationResponse create(ResignationCreateRequest request, String companyName) {
+
         User user = userRepository.findByCIN(request.cin())
-                .orElseThrow(() -> new UserNotFoundException("User not found with CIN: " + request.cin()));
+                .orElseThrow(() -> new UserNotFoundException(
+                        "User not found with CIN: " + request.cin()));
 
         if (resignationRepository.existsByUser(user)) {
-            throw new ResignationAlreadyExistsException("Resignation already exists for this user");
+            throw new ResignationAlreadyExistsException(
+                    "Resignation already exists for this user");
         }
 
-        return resignationMapper.toResponse(
-                resignationRepository.save(resignationMapper.toEntity(request, user))
-        );
-    }
+        Resignation saved = resignationRepository.save(
+                resignationMapper.toEntity(request, user));
 
+        ResignationCreatedEvent event = ResignationCreatedEvent.builder()
+                .resignationId(saved.getId())
+                .employeeEmail(user.getEmail())
+                .employeeFullName(user.getFirstName() + " " + user.getLastName())
+                .employeeCin(user.getCIN())
+                .resignationDate(saved.getResignationDate())
+                .reason(saved.getReason())
+                .companyName(companyName)     // ← ajouter
+                .build();
+
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.EXCHANGE,
+                RabbitMQConfig.ROUTING_KEY,
+                event
+        );
+
+        return resignationMapper.toResponse(saved);
+    }
     @Override
     public ResignationResponse getById(UUID id) {
         return resignationMapper.toResponse(findResignationById(id));
@@ -69,6 +92,7 @@ public class ResignationServiceImpl implements ResignationService {
 
     private Resignation findResignationById(UUID id) {
         return resignationRepository.findById(id)
-                .orElseThrow(() -> new ResignationNotFoundException("Resignation not found with id: " + id));
+                .orElseThrow(() -> new ResignationNotFoundException(
+                        "Resignation not found with id: " + id));
     }
 }

@@ -1,5 +1,6 @@
 package org.woridge.ms_internal_users_management.controller;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,10 +21,13 @@ public class ResignationController {
     private final ResignationService resignationService;
 
     @PostMapping
-    public ResponseEntity<ResignationResponse> create(@RequestBody ResignationCreateRequest request) {
+    public ResponseEntity<ResignationResponse> create(
+            @RequestBody @Valid ResignationCreateRequest request,
+            @RequestHeader("X-Subdomain") String subdomain) {  //
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(resignationService.create(request));
+                .body(resignationService.create(request, subdomain));  // ← passer
     }
 
     @GetMapping("/{id}")
