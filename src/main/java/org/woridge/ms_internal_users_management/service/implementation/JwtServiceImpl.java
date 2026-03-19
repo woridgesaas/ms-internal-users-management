@@ -40,7 +40,12 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public Boolean isValidToken(String token) {
 
-        return !isTokenExpired(token);
+        try {
+            return !isTokenExpired(token);
+        } catch (Exception e) {
+            System.out.println("Token invalide : " + e.getMessage());
+            return false;
+        }
     }
 
     private SecretKey getSecretKey() {

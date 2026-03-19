@@ -12,17 +12,17 @@ spring:
   profiles:
     active: ${ACTIVE_PROFILE}
   rabbitmq:
-    host: ${RABBIT_HOST}
-    port: 5672
-    username: ${RABBIT_USERNAME}
-    password: ${RABBIT_PASSWORD}
+    host: ${MQ_HOST}
+    port: ${MQ_PORT}
+    username: ${MQ_USER}
+    password: ${MQ_PASS}
 
 rabbitmq:
   exchange:
-    notification: notification.exchange
-
+    notification: woridge.exchange
   routing:
-    user-created: notification.user.created
+    user-created: user.created
+    resignation-created: resignation.created
 
 server:
   port: 8081
