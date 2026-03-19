@@ -11,8 +11,9 @@ import org.woridge.ms_internal_users_management.exception.resignation.Resignatio
 import org.woridge.ms_internal_users_management.exception.resignation.ResignationNotFoundException;
 import org.woridge.ms_internal_users_management.exception.user.UserNotFoundException;
 import org.woridge.ms_internal_users_management.mapper.ResignationMapper;
-import org.woridge.ms_internal_users_management.messaging.config.RabbitMQConfig;
+import org.woridge.ms_internal_users_management.config.RabbitMQConfig;
 import org.woridge.ms_internal_users_management.messaging.event.ResignationCreatedEvent;
+import org.woridge.ms_internal_users_management.messaging.publisher.NotificationEventPublisher;
 import org.woridge.ms_internal_users_management.model.Resignation;
 import org.woridge.ms_internal_users_management.model.User;
 import org.woridge.ms_internal_users_management.repository.ResignationRepository;
@@ -21,16 +22,15 @@ import org.woridge.ms_internal_users_management.service.ResignationService;
 
 import java.util.List;
 import java.util.UUID;
-
 @Service
 @AllArgsConstructor
 @Transactional
 public class ResignationServiceImpl implements ResignationService {
 
-    private final ResignationRepository resignationRepository;
-    private final UserRepository        userRepository;
-    private final ResignationMapper     resignationMapper;
-    private final RabbitTemplate        rabbitTemplate;      // ← ajouter
+    private final ResignationRepository      resignationRepository;
+    private final UserRepository             userRepository;
+    private final ResignationMapper          resignationMapper;
+    private final NotificationEventPublisher notificationEventPublisher;
 
     @Override
     public ResignationResponse create(ResignationCreateRequest request, String companyName) {
@@ -47,24 +47,17 @@ public class ResignationServiceImpl implements ResignationService {
         Resignation saved = resignationRepository.save(
                 resignationMapper.toEntity(request, user));
 
-        ResignationCreatedEvent event = ResignationCreatedEvent.builder()
-                .resignationId(saved.getId())
-                .employeeEmail(user.getEmail())
-                .employeeFullName(user.getFirstName() + " " + user.getLastName())
-                .employeeCin(user.getCIN())
-                .resignationDate(saved.getResignationDate())
-                .reason(saved.getReason())
-                .companyName(companyName)     // ← ajouter
-                .build();
-
-        rabbitTemplate.convertAndSend(
-                RabbitMQConfig.EXCHANGE,
-                RabbitMQConfig.ROUTING_KEY,
-                event
+        notificationEventPublisher.publishResignationCreated(
+                saved.getId().toString(),
+                user,
+                saved.getResignationDate(),
+                saved.getReason(),
+                companyName
         );
 
         return resignationMapper.toResponse(saved);
     }
+
     @Override
     public ResignationResponse getById(UUID id) {
         return resignationMapper.toResponse(findResignationById(id));

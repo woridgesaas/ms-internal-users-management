@@ -1,18 +1,21 @@
 package org.woridge.ms_internal_users_management.messaging.event;
 
-
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.time.LocalDate;
-import java.util.UUID;
 
+@Data
 @Builder
-public record ResignationCreatedEvent(
-        UUID   resignationId,
-        String employeeEmail,
-        String employeeFullName,
-        String employeeCin,
-        LocalDate resignationDate,
-        String reason,
-        String  companyName
-
-) {}
+@AllArgsConstructor
+@NoArgsConstructor
+public class ResignationCreatedEvent {
+    private String    resignationId;
+    private String    employeeEmail;
+    private String    employeeFullName;
+    private String    employeeCin;
+    private LocalDate resignationDate;
+    private String    reason;
+    private String    companyName;
+}
