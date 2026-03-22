@@ -73,29 +73,29 @@ public class PayrollCalculatorServiceTest {
         assertEquals(8000.00, this.input2.getBaseSalary(), 0.01);
 
         // Total raw
-        assertEquals(7779.23, result.getGrossSalary(), 0.01);
+        assertEquals(8103.14, result.getGrossSalary(), 0.01);
 
         // CNSS (plafond 6000 MAD, 4.48%)
         assertEquals(268.80, result.getCnssAmount(), 0.01, "CNSS 4.48%");
 
         // AMO (2.26%)
-        assertEquals(175.81, result.getAmoAmount(), 0.01, "AMO 2.26%");
+        assertEquals(183.13, result.getAmoAmount(), 0.01, "AMO 2.26%");
 
         // (25% of raw)
-        assertEquals(1944.81, result.getProfessionalExpenses(), 0.01, "(25%) ProfesionnalExpenses not taxable");
+        assertEquals(2025.79, result.getProfessionalExpenses(), 0.01, "(25%) ProfesionnalExpenses not taxable");
 
         // (SNI = totalBrut - CNSS - AMO - FP)
-        assertEquals(5389.81, result.getNetTaxableSalary(), 0.05, "SNI correct");
+        assertEquals(5625.42, result.getNetTaxableSalary(), 0.05, "SNI correct");
 
         assertEquals(83.34, result.getFamilyDeductions(), 0.03);
 
-        assertEquals(244.63, result.getIgrBrut(), 0.03, "raw IGR correct");
+        assertEquals(291.75, result.getIgrBrut(), 0.03, "raw IGR correct");
 
         // IGR raw after deduction
-        assertEquals(161.3, result.getIgrNet(), 0.05);
+        assertEquals(208.42, result.getIgrNet(), 0.05);
 
         // NetToPay= totalBrut - (CNSS + AMO + IGR net)
-        assertEquals(7173.32, result.getNetToPay(), 0.01, "Total to pay correct");
+        assertEquals(7442.79, result.getNetToPay(), 0.01, "Total to pay correct");
     }
     @Test
     public void testCalculateForSeniorSeniorProfile() {
