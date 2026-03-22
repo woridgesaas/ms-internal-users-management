@@ -1,14 +1,11 @@
-package org.woridge.ms_internal_users_management.strategy;
+package org.woridge.ms_internal_users_management.strategy.payroll;
 
 import org.springframework.stereotype.Service;
 import org.woridge.ms_internal_users_management.enumeration.ExportFormat;
-import org.woridge.ms_internal_users_management.model.Payroll;
 import org.woridge.ms_internal_users_management.repository.PayrollRepository;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service

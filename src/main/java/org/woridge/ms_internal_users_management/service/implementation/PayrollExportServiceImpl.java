@@ -9,8 +9,8 @@ import org.woridge.ms_internal_users_management.model.Payroll;
 import org.woridge.ms_internal_users_management.repository.PayrollRepository;
 import org.woridge.ms_internal_users_management.service.PayrollExportService;
 
-import org.woridge.ms_internal_users_management.strategy.PayrollExportStrategy;
-import org.woridge.ms_internal_users_management.strategy.PayrollExportStrategyFactory;
+import org.woridge.ms_internal_users_management.strategy.payroll.PayrollExportStrategy;
+import org.woridge.ms_internal_users_management.strategy.payroll.PayrollExportStrategyFactory;
 
 import java.time.LocalDate;
 import java.util.UUID;

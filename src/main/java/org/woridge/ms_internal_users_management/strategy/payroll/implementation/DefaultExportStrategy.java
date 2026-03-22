@@ -1,4 +1,4 @@
-package org.woridge.ms_internal_users_management.strategy.implementation;
+package org.woridge.ms_internal_users_management.strategy.payroll.implementation;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import org.woridge.ms_internal_users_management.enumeration.ExportFormat;
 import org.woridge.ms_internal_users_management.model.*;
 import org.woridge.ms_internal_users_management.repository.PayrollRepository;
-import org.woridge.ms_internal_users_management.strategy.PayrollExportStrategy;
+import org.woridge.ms_internal_users_management.strategy.payroll.PayrollExportStrategy;
 
 import java.io.InputStream;
 import java.time.ZoneId;

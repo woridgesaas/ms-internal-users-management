@@ -1,4 +1,4 @@
-package org.woridge.ms_internal_users_management.strategy;
+package org.woridge.ms_internal_users_management.strategy.delete;
 
 import org.woridge.ms_internal_users_management.dto.SuccessResponse;
 

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.woridge.ms_internal_users_management.mapper.DepartmentMapper;
 import org.woridge.ms_internal_users_management.repository.DepartmentRepository;
-import org.woridge.ms_internal_users_management.dto.department.CreateDepartmentRequest;
+import org.woridge.ms_internal_users_management.dto.department.AddDepartmentRequest;
 import org.woridge.ms_internal_users_management.dto.department.DepartmentResponse;
 import org.woridge.ms_internal_users_management.dto.department.UpdateDepartmentRequest;
 import org.woridge.ms_internal_users_management.exception.department.DepartmentAlreadyExistsException;
@@ -20,6 +20,7 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
+@Transactional
 public class DepartmentServiceImpl implements DepartmentService {
 
     private final DepartmentRepository repository;
@@ -27,8 +28,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     private final EmployeeStatisticsService employeeStatisticsService;
 
     @Override
-    @Transactional////annotation permettant de gérer automatiquement les transactions de base de données
-    public void createDepartment(CreateDepartmentRequest request) {
+    public void createDepartment(AddDepartmentRequest request) {
 
         if (repository.existsByNameIgnoreCase(request.getName())) {  //Vérifier si existe
             throw new DepartmentAlreadyExistsException("Department already exists");
@@ -63,7 +63,6 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
-    @Transactional
     public void updateDepartment(UUID id, UpdateDepartmentRequest request) {
 
         Department department = repository.findById(id)//vérifier existence
