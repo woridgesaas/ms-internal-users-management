@@ -313,5 +313,5 @@ A `PayrollCalculationResult` object containing all detailed amounts (base, gross
    - Generates the report in memory (`byte[]`).
    - The binary stream is returned in the HTTP response.
 
-![Payroll module architecture](mermaid-diagram.png)
+![Payroll module architecture](docs/uploads/mermaid-diagram.png)
 
