@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.woridge.ms_internal_users_management.dto.SuccessResponse;
 import org.woridge.ms_internal_users_management.dto.promotiom.*;
@@ -17,7 +16,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/promotions")
 @AllArgsConstructor
-@PreAuthorize("hasAnyRole('HR', 'CEO')")
 public class PromotionController {
 
     private final PromotionService promotionService;

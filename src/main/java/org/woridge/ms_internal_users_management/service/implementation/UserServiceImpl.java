@@ -22,7 +22,6 @@ import org.woridge.ms_internal_users_management.repository.PostRepository;
 import org.woridge.ms_internal_users_management.repository.UserRepository;
 import org.woridge.ms_internal_users_management.service.UserService;
 import org.woridge.ms_internal_users_management.service.UserValidator;
-import org.woridge.ms_internal_users_management.utils.JwtUtils;
 import org.woridge.ms_internal_users_management.utils.PasswordGenerator;
 
 import java.util.List;
@@ -62,14 +61,13 @@ public class UserServiceImpl implements UserService {
         User saved = userRepository.save(user);
 
         CreateUserResponse dto = userMapper.toCreateUserResponse(saved);
-        // 5️⃣ Récupérer JWT du contexte pour l'envoyer à ms-auth
-        String jwtToken = JwtUtils.extractJwt(httpServletRequest);
+
         try {
-            // 6️⃣ Appel du service externe
-            authServiceClient.createUser(saved, hashedPassword, jwtToken);
+            // 5) Appel du service externe
+            authServiceClient.createUser(saved, hashedPassword);
             notificationEventPublisher.publishUserCreated(saved, tempPassword);
         } catch (Exception ex) {
-            // 7️⃣ Rollback si échec ms-auth
+            // 6) Rollback si échec ms-auth
             userRepository.delete(saved);
             throw new AuthFailedException("Auth service failed. User rollback executed.");
         }

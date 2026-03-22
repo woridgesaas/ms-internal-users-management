@@ -3,19 +3,16 @@ spring:
     name: ms-internal-users-management
   flyway:
     validate-on-migrate: true
-  security:
-    jwt:
-      secret-key: ${SECRET_KEY}
   jpa:
     hibernate:
       ddl-auto: validate
   profiles:
     active: ${ACTIVE_PROFILE}
   rabbitmq:
-    host: ${MQ_HOST}
-    port: ${MQ_PORT}
-    username: ${MQ_USER}
-    password: ${MQ_PASS}
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
 
 rabbitmq:
   exchange:
@@ -28,3 +25,9 @@ server:
   port: 8081
   servlet:
     context-path: /api/internal-users
+
+internal:
+  secret-key: ${INTERNAL_SECRET_KEY}
+
+services:
+  auth-url: ${AUTH_SERVICE_URL}
