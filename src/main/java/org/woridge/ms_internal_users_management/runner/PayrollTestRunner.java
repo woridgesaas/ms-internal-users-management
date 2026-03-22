@@ -3,25 +3,24 @@ package org.woridge.ms_internal_users_management.runner;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
 import org.woridge.ms_internal_users_management.repository.PayrollRepository;
-import org.woridge.ms_internal_users_management.service.PayrollPersistenceService;
+import org.woridge.ms_internal_users_management.service.PayrollGenerationService;
 
 //@Component
 @Transactional
 public class PayrollTestRunner implements CommandLineRunner {
     @Autowired
-    private PayrollPersistenceService payrollPersistenceService;
+    private PayrollGenerationService payrollGenerationService;
     @Autowired
     private PayrollRepository payrollRepository;
     @Override
     public void run(String... args) throws Exception {
-        System.out.println("=== DÉMARRAGE DE LA GÉNÉRATION DE LA PAIE TEST ===");
-        payrollPersistenceService.generateMonthlyPayrolls(3, 2026);
+        System.out.println("=== Starting runner test ===");
+        payrollGenerationService.generateMonthlyPayrolls(3, 2026);
 
 
         long count = payrollRepository.count();
-        System.out.println("Nombre de fiches de paie générées : " + count);
+        System.out.println("Number of documents generated: " + count);
 
         payrollRepository.findAll().forEach(p -> {
             System.out.println("--------------------------------------------------");
@@ -32,7 +31,7 @@ public class PayrollTestRunner implements CommandLineRunner {
             System.out.println("Nombre de lignes de détails : " + p.getDetails().size());
         });
 
-        System.out.println("=== FIN DU TEST DE PERSISTANCE ===");
+        System.out.println("=== FIN ===");
     }
     }
 

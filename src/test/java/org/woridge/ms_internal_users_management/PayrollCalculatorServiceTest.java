@@ -10,7 +10,7 @@ import org.woridge.ms_internal_users_management.service.implementation.PayrolCal
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.UUID;
 
-@ActiveProfiles("dev")
+//@ActiveProfiles("dev")
 public class PayrollCalculatorServiceTest {
 
     private PayrolCalculatorService payrollService=null;

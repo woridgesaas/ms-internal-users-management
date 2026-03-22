@@ -1,7 +1,5 @@
 package org.woridge.ms_internal_users_management.service.implementation;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -11,14 +9,11 @@ import org.woridge.ms_internal_users_management.dto.payroll.PayrollCalculationRe
 import org.woridge.ms_internal_users_management.dto.payroll.PayrollInput;
 import org.woridge.ms_internal_users_management.factory.PayrollFactory;
 import org.woridge.ms_internal_users_management.model.Payroll;
-import org.woridge.ms_internal_users_management.model.PayrollDetail;
-import org.woridge.ms_internal_users_management.model.User;
 import org.woridge.ms_internal_users_management.repository.PayrollRepository;
 import org.woridge.ms_internal_users_management.service.PayrolCalculatorService;
 import org.woridge.ms_internal_users_management.service.PayrollCollectorService;
-import org.woridge.ms_internal_users_management.service.PayrollPersistenceService;
+import org.woridge.ms_internal_users_management.service.PayrollGenerationService;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -26,7 +21,7 @@ import java.util.List;
 @NoArgsConstructor
 @Service
 @Transactional
-public class PayrollPersistenceServiceImpl implements PayrollPersistenceService {
+public class PayrollGenerationServiceImpl implements PayrollGenerationService {
 
     @Autowired
     private PayrollRepository payrollRepository;

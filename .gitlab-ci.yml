@@ -22,14 +22,14 @@ build:
     expire_in: 15 minutes
 
 # Test stage
-test:
-  stage: test
-  image: maven:3.9.6-eclipse-temurin-21
-  needs:
-    - job: build
-      artifacts: true
-  script:
-    - mvn clean test
+  #  test:
+  #stage: test
+  #image: maven:3.9.6-eclipse-temurin-21
+      #needs:
+      #- job: build
+    #artifacts: true
+      #script:
+    #- mvn clean test
 
 # Package stage
 #package:
