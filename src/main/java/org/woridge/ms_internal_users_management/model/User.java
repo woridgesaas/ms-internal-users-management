@@ -52,5 +52,7 @@ public class User {
     private Set<ProfessionalExperience> professionalExperiences = new HashSet<>();
     private Instant createdAt;
     private Instant updatedAt;
+    @OneToOne(mappedBy = "user" ,cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private SocialInfo socialInfo;
 }
 

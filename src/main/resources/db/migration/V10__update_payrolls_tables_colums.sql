@@ -1,0 +1,1 @@
+ALTER TABLE payrolls DROP CONSTRAINT fk_payroll_user;

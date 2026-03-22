@@ -7,7 +7,7 @@ spring:
     hibernate:
       ddl-auto: validate
   profiles:
-    active: ${ACTIVE_PROFILE}
+    active: ${ACTIVE_PROFILE:dev}
   rabbitmq:
     host: ${RABBITMQ_HOST}
     port: ${RABBITMQ_PORT}
