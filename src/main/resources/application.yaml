@@ -10,7 +10,7 @@ spring:
     hibernate:
       ddl-auto: validate
   profiles:
-    active: ${ACTIVE_PROFILE}
+    active: ${ACTIVE_PROFILE:dev}
 
 server:
   port: 8081
