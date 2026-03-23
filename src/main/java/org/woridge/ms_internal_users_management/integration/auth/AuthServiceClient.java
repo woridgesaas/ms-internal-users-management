@@ -1,27 +1,35 @@
 package org.woridge.ms_internal_users_management.integration.auth;
 
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.woridge.ms_internal_users_management.dto.user.CreateUserInAuthRequest;
 import org.woridge.ms_internal_users_management.mapper.AuthMapper;
 import org.woridge.ms_internal_users_management.model.User;
-@Service
-@AllArgsConstructor
 
+@Service
 public class AuthServiceClient {
+
+    @Value("${internal.secret-key}")
+    private String internalSecretKey;
+
+    @Value("${services.auth-url}")
+    private String authServiceUrl;
+
     private final WebClient webClient;
 
-    private final String authServiceUrl = "http://localhost:5265/api/auth/user";
+    public AuthServiceClient(WebClient webClient) {
+        this.webClient = webClient;
+    }
 
-    public void createUser(User user, String hashedPassword, String jwtToken) {
+    public void createUser(User user, String hashedPassword) {
 
         CreateUserInAuthRequest request =
                 AuthMapper.toCreateUserInAuthRequest(user, hashedPassword);
 
         webClient.post()
                 .uri(authServiceUrl)
-                .header("Authorization", "Bearer " + jwtToken)
+                .header("X-Internal-Secret-Key", internalSecretKey)
                 .header("Content-Type", "application/json")
                 .bodyValue(request)
                 .retrieve()

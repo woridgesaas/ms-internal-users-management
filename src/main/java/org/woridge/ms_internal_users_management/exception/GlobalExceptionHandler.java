@@ -3,7 +3,6 @@ package org.woridge.ms_internal_users_management.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,9 +14,6 @@ import org.woridge.ms_internal_users_management.exception.post.PostIdNotMatchedE
 import org.woridge.ms_internal_users_management.exception.post.PostNameDuplicatedException;
 import org.woridge.ms_internal_users_management.exception.post.PostNotFoundException;
 import org.woridge.ms_internal_users_management.exception.auth.AuthFailedException;
-import org.woridge.ms_internal_users_management.exception.auth.JwtTokenMissingException;
-import org.woridge.ms_internal_users_management.exception.auth.NoAuthoritiesFoundException;
-import org.woridge.ms_internal_users_management.exception.auth.UnauthenticatedUserException;
 import org.woridge.ms_internal_users_management.exception.department.DepartmentAlreadyExistsException;
 import org.woridge.ms_internal_users_management.exception.department.DepartmentNotFoundException;
 import org.woridge.ms_internal_users_management.exception.holiday.FixedHolidayUpdatedException;
@@ -34,34 +30,8 @@ import org.woridge.ms_internal_users_management.exception.user.*;
 
 import java.util.List;
 
-
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
-    // Authentication / Authorization exceptions
-    @ExceptionHandler(UnauthenticatedUserException.class)
-    public ResponseEntity<ErrorResponse<String>> handleUnauthenticatedUserException(UnauthenticatedUserException exception) {
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(
-                        ErrorResponse.createErrorResponse(
-                                exception.getMessage(),
-                                ErrorCode.UNAUTHORIZED
-                        )
-                );
-    }
-
-    @ExceptionHandler(JwtTokenMissingException.class)
-    public ResponseEntity<ErrorResponse<String>> handleJwtTokenMissingException(JwtTokenMissingException exception) {
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(
-                        ErrorResponse.createErrorResponse(
-                                exception.getMessage(),
-                                ErrorCode.JWT_TOKEN_MISSING
-                        )
-                );
-    }
 
     @ExceptionHandler(AuthFailedException.class)
     public ResponseEntity<ErrorResponse<String>> handleAuthFailedException(AuthFailedException exception) {
@@ -71,31 +41,6 @@ public class GlobalExceptionHandler {
                         ErrorResponse.createErrorResponse(
                                 exception.getMessage(),
                                 ErrorCode.AUTH_FAILED
-                        )
-                );
-    }
-
-    @ExceptionHandler(NoAuthoritiesFoundException.class)
-    public ResponseEntity<ErrorResponse<String>> handleNoAuthoritiesFoundException(NoAuthoritiesFoundException exception) {
-        return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(
-                        ErrorResponse.createErrorResponse(
-                                exception.getMessage(),
-                                ErrorCode.NO_AUTHORITIES_FOUND
-                        )
-                );
-    }
-
-    // User is authenticated but doesn't have the required role (authority)
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse<String>> handleAccessDeniedException(AccessDeniedException exception) {
-        return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(
-                        ErrorResponse.createErrorResponse(
-                                exception.getMessage(),
-                                ErrorCode.ACCESS_DENIED
                         )
                 );
     }

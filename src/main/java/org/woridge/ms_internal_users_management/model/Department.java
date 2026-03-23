@@ -23,7 +23,7 @@ public class Department {
     @Column(nullable = false, length = 50)
     private String name;
 
-    @Enumerated(EnumType.STRING)//utilisée pour enregistrer un Enum dans la base de données.
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;
 
@@ -33,7 +33,7 @@ public class Department {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
-    @PrePersist // méthode appelée automatiquement avant INSERT dans la base.
+    @PrePersist
     public void prePersist() { createdAt = Instant.now();}
 
     @PreUpdate

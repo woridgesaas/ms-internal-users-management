@@ -12,11 +12,7 @@ public enum ErrorCode {
     INVALID_ENUM_VALUE,
 
     // Authentication / Authorization
-    UNAUTHORIZED,
-    ACCESS_DENIED,
-    JWT_TOKEN_MISSING,
     AUTH_FAILED,
-    NO_AUTHORITIES_FOUND,
 
     // User
     USER_NOT_FOUND,
@@ -65,5 +61,9 @@ public enum ErrorCode {
     PROMOTION_ID_MISMATCH,
 
     //Salary
-    SALARY_NOT_FOUND
+    SALARY_NOT_FOUND,
+
+    // Gateway
+    MISSING_GATEWAY_FORWARDED_HEADER,
+    REQUEST_NOT_ROUTED_THROUGH_GATEWAY
 }

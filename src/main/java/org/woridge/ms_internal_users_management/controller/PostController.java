@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.woridge.ms_internal_users_management.dto.SuccessResponse;
 import org.woridge.ms_internal_users_management.dto.post.*;
@@ -16,7 +15,6 @@ import java.util.UUID;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/posts")
-@PreAuthorize("hasAnyRole('HR', 'CEO')")
 public class PostController {
 
     private final PostService postService;

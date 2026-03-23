@@ -165,3 +165,153 @@ The pipeline includes :
 * Controlled artifact retention policy
 
 This improves build performance and ensures efficient CI execution.
+
+# 📄 Payroll Module – Woridge Payroll
+
+**Technical Documentation**  
+Version: 1.0 | Last updated: March 20, 2026
+
+---
+
+## 1. Introduction & Purpose
+
+The **Woridge Payroll** module is responsible for generating employee payslips, in compliance with Moroccan social and tax regulations (CNSS, AMO, IGR, CIMR).
+
+It is designed to cover two use cases:
+
+| Mode | Trigger | Usage |
+|------|---------|-------|
+| **Automatic (batch)** | Cron job triggered on the 26th of each month | Bulk generation of payslips for all active employees |
+| **On-demand (manual)** | HR request via the interface | One-off download of a payslip for a given employee |
+
+📌 **Key technical constraint**:  
+The PDF is never physically stored on the server. It is generated *on‑the‑fly* from persistent data, then returned to the browser as a `byte[]`. This ensures security, lightweight operation, and no redundant data.
+
+---
+
+## 2. General Architecture
+[Collection] → [Calculation] → [Persistence] → [Export] → [Display]
+
+↑ ↑ ↑ ↑ ↑
+
+Collector · Calculator · Factory · Strategy · Controller
+
+The flow is orchestrated either by the **application service** `PayrollGenerationService` (batch) or by the **controller** `/download` (on-demand).
+
+---
+
+## 3. Collection & Calculation Phase (the engine)
+
+### 3.1. `PayrollCollectorService`
+
+**Role**: Aggregate all necessary data for payroll calculation for an employee, at a given period.
+
+#### Data collected
+- **Identity**: name, CIN, CNSS, position, department
+- **Contractual salary**: `baseSalary`
+- **Attendance**: worked days (`workedDays`)
+- **Absences**: unjustified absence days
+- **Overtime hours**: broken down by category (25%, 50%, 100%)
+- **Bonuses**: total monthly bonuses
+- **Family information**: number of dependents (`familyDeductions`)
+
+#### Output
+A `PayrollInput` object containing all raw data required for calculation.
+
+---
+
+### 3.2. `PayrollCalculatorService`
+
+**Role**: Apply Moroccan tax and social rules to produce payroll results.
+
+#### Calculation steps
+
+1. **Effective salary**  
+   `effectiveBaseSalary = (baseSalary / 26) * workedDays`
+2. **Overtime value**
+3. **Gross salary (SB)**  
+   `totalBrut = effectiveBaseSalary + totalOvertimeMAD + bonus`
+4. **Social contributions**
+   - CNSS: `min(totalBrut, 6000) × 4.48%`
+   - AMO : `totalBrut × 2.26%`
+5. **Professional expenses (FP)**  
+   `min(totalBrut × 25%, 2500)`
+6. **Net taxable salary (SNI)**  
+   `SNI = totalBrut – CNSS – AMO – FP`
+7. **IGR (progressive scale)**  
+   According to Moroccan monthly brackets:
+   - 0%    : ≤ 3,333.33 MAD
+   - 10%   : 3,333.34 – 5,000
+   - 20%   : 5,000.01 – 6,666.67
+   - 30%   : 6,666.68 – 8,333.33
+   - 34%   : 8,333.34 – 15,000
+   - 37%   : > 15,000
+8. **Family deductions**  
+   `familyDeduction = min(nbPersons, 6) × rate`
+9. **Net IGR**  
+   `IGRnet = max(0, IGRbrut – familyDeduction)`
+10. **Net salary payable**  
+    `netAPayer = totalBrut – (CNSS + AMO + IGRnet)`
+
+#### Output
+A `PayrollCalculationResult` object containing all detailed amounts (base, gross, contributions, IGR, net…).
+
+---
+
+### 3.3. `PayrollFactory`
+
+**Role**: Build a complete JPA `Payroll` entity from a `PayrollInput` and the calculation result.
+
+#### Process
+- Creates the parent `Payroll` object
+- Adds detail lines (`PayrollDetail`) via `fillPayrollDetails()`
+
+#### Line types
+| Type     | Description |
+|----------|-------------|
+| `GAIN`   | Salary, bonuses, overtime |
+| `RETENTION` | CNSS, AMO, IGR |
+| `FISCAL` | Professional expenses, family deductions |
+| `INFO`   | SBI, SNI |
+
+---
+
+## 4. Persistence Phase
+
+**Component**: `PayrollRepository` (Spring Data JPA)
+
+### Storage
+- The parent `Payroll` entity is saved.
+- Thanks to `CascadeType.ALL`, `PayrollDetail` entries are automatically persisted.
+
+### Benefit
+- Payroll is **frozen** in time. Even if source data (absences, overtime) changes after the 26th, the payslip remains unchanged.
+
+---
+
+## 5. Export & Rendering Phase (JasperReports)
+
+### 5.1. On-demand download workflow
+
+1. **Controller**
+   - Endpoint: `/download`
+   - Receives the HTTP request and delegates to the export service.
+
+2. **PayrollExportService**
+   - Main service orchestrating the export.
+   - Calls the factory to select the appropriate strategy.
+
+3. **PayrollExportStrategyFactory**
+   - Selects the export strategy (here: PDF).
+   - Returns the corresponding implementation.
+
+4. **DefaultExportStrategy**
+   - Default implementation for PDF export.
+   - Uses JasperReports to generate the content.
+
+5. **JasperReports**
+   - Generates the report in memory (`byte[]`).
+   - The binary stream is returned in the HTTP response.
+
+![Payroll module architecture](docs/uploads/mermaid-diagram.png)
+

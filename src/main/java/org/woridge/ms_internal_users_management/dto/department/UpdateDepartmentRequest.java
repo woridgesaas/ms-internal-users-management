@@ -11,10 +11,10 @@ import org.woridge.ms_internal_users_management.enumeration.Status;
 @Setter
 public class UpdateDepartmentRequest {
 
-    @NotBlank
-    @Size(max = 50)
+    @NotBlank(message = "Department name is required")
+    @Size(message = "Department name must not exceed 50 characters", max = 50)
     private String name;
 
-    @NotNull
+    @NotNull(message = "Department status is required")
     private Status status;
 }
