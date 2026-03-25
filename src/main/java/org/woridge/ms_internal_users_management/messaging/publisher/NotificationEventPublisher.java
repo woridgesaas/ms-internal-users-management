@@ -5,7 +5,9 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.woridge.ms_internal_users_management.messaging.event.CreateUserNotificationEvent;
+import org.woridge.ms_internal_users_management.messaging.event.HolidayCreatedEvent;
 import org.woridge.ms_internal_users_management.messaging.event.ResignationCreatedEvent;
+import org.woridge.ms_internal_users_management.model.Holiday;
 import org.woridge.ms_internal_users_management.model.User;
 
 import java.time.LocalDate;
@@ -22,6 +24,8 @@ public class NotificationEventPublisher {
     @Value("${rabbitmq.routing.user-created}")
     private String routingKey;
 
+    @Value("${rabbitmq.routing.holiday-created}")
+    private String holidayRoutingKey;
 
     @Value("${rabbitmq.routing.resignation-created}")
     private String resignationRoutingKey;
@@ -56,5 +60,14 @@ public class NotificationEventPublisher {
                 .build();
 
         rabbitTemplate.convertAndSend(exchange, resignationRoutingKey, event);
+    }
+
+    public void publishHolidayCreated(Holiday holiday) {
+
+        HolidayCreatedEvent event = HolidayCreatedEvent.builder()
+                .date(holiday.getDate())
+                .build();
+
+        rabbitTemplate.convertAndSend(exchange, holidayRoutingKey, event);
     }
 }
