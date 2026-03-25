@@ -23,4 +23,13 @@ public interface UserRepository extends JpaRepository<User,UUID> {
     Optional<User> findWithFullProfileById(UUID id);
     Optional<User> findByCIN(String cin);
     Optional<User> findByIdAndStatus(UUID id, Status status);
+    @Query("""
+        SELECT u
+        FROM User u
+        LEFT JOIN FETCH u.department
+        LEFT JOIN FETCH u.post
+        WHERE u.CIN = :cin
+    """)
+    Optional<User> findByCINWithDepartmentAndPost(String cin);
+
 }

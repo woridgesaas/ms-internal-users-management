@@ -20,6 +20,7 @@ import org.woridge.ms_internal_users_management.mapper.UserMapper;
 import org.woridge.ms_internal_users_management.repository.DepartmentRepository;
 import org.woridge.ms_internal_users_management.repository.PostRepository;
 import org.woridge.ms_internal_users_management.repository.UserRepository;
+import org.woridge.ms_internal_users_management.service.SalaryService;
 import org.woridge.ms_internal_users_management.service.UserService;
 import org.woridge.ms_internal_users_management.service.UserValidator;
 import org.woridge.ms_internal_users_management.utils.PasswordGenerator;
@@ -40,6 +41,7 @@ public class UserServiceImpl implements UserService {
     private final HttpServletRequest httpServletRequest;
     private final AuthServiceClient authServiceClient;
     private final NotificationEventPublisher notificationEventPublisher;
+    private final SalaryService salaryService;
 
     @Transactional
     public CreateUserResponse createUser(CreateUserRequest request) {
@@ -59,6 +61,12 @@ public class UserServiceImpl implements UserService {
         // 4) map + save
         User user = userMapper.toUser(request, department, post, hashedPassword, role);
         User saved = userRepository.save(user);
+        //  créer salaire initial automatiquement
+        salaryService.createNewSalary(
+                saved,
+                post,
+                post.getBaseSalary()
+        );
 
         CreateUserResponse dto = userMapper.toCreateUserResponse(saved);
 

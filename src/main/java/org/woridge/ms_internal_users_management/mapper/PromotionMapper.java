@@ -43,6 +43,7 @@ public class PromotionMapper {
     public static GetAllPromotionsResponse toGetAllPromotionsResponse(Promotion promotion) {
 
         BasicUserInfo basicUserInfo = new BasicUserInfo(
+                promotion.getUser().getCIN(),
                 promotion.getUser().getFirstName() + " " + promotion.getUser().getLastName(),
                 promotion.getUser().getPicturePath()
         );
@@ -54,6 +55,7 @@ public class PromotionMapper {
                 .departmentName(promotion.getUser().getDepartment().getName())
                 .previousPostName(promotion.getPreviousPostName())
                 .newPostName(promotion.getNewPostName())
+                .previousSalary(promotion.getPreviousSalary())
                 .newSalary(promotion.getNewSalary())
                 .promotionDate(promotion.getPromotionDate())
                 .build();

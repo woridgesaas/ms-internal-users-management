@@ -13,6 +13,7 @@ public record GetAllPromotionsResponse(
         String departmentName,
         String previousPostName,
         String newPostName,
+        BigDecimal previousSalary,
         BigDecimal newSalary,
         LocalDate promotionDate
 ) {
