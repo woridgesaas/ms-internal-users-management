@@ -9,6 +9,7 @@ import org.woridge.ms_internal_users_management.exception.holiday.HolidayExistEx
 import org.woridge.ms_internal_users_management.exception.holiday.HolidayNotFoundException;
 import org.woridge.ms_internal_users_management.exception.holiday.InvalidHolidayDateException;
 import org.woridge.ms_internal_users_management.mapper.HolidayMapper;
+import org.woridge.ms_internal_users_management.messaging.publisher.NotificationEventPublisher;
 import org.woridge.ms_internal_users_management.model.Holiday;
 import org.woridge.ms_internal_users_management.repository.HolidayRepository;
 import org.woridge.ms_internal_users_management.service.HolidayService;
@@ -22,6 +23,7 @@ import java.util.Optional;
 public class HolidayServiceImpl implements HolidayService {
 
     private final HolidayRepository repo;
+    private final NotificationEventPublisher notificationEventPublisher;
     /**
      * Retrieves all holidays for a specified year.
      * If no holidays exist for the requested year (and it's the current or future year),
@@ -96,7 +98,11 @@ public class HolidayServiceImpl implements HolidayService {
             throw new HolidayExistException("Ther's already a Holiday exist with this date : "+ model.getDate());
         model.setIsFixed(true);
         model.setStatus(HolidayStatus.CONFIRMED);
-        return repo.save(model);
+        Holiday saved = repo.save(model);
+
+        notificationEventPublisher.publishHolidayCreated(saved);
+
+        return saved;
     }
 
     public Optional<Holiday> getHolidayById(Long id){

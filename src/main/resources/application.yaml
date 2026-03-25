@@ -20,6 +20,7 @@ rabbitmq:
   routing:
     user-created: user.created
     resignation-created: resignation.created
+    holiday-created: holiday.created
 
 server:
   port: 8081
