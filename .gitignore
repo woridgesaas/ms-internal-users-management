@@ -35,3 +35,5 @@ build/
 ### Environment variables ###
 .env
 application-dev.yaml
+/infra/script
+/infra/script/run-dev.bat
