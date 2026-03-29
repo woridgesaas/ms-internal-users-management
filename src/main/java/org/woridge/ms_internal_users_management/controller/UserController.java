@@ -28,7 +28,7 @@ public class UserController {
     private final UserUpdateRequestService updateRequestService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('CEO','HR')")
+   //@PreAuthorize("hasAnyRole('CEO','HR')")
     public ResponseEntity<SuccessResponse<CreateUserResponse>> createUser(@Valid @RequestBody CreateUserRequest request) {
 
         return ResponseEntity
@@ -52,7 +52,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('CEO','HR')")
+    //@PreAuthorize("hasAnyRole('CEO','HR')")
     public ResponseEntity<SuccessResponse<Void>> softDeleteUser(@PathVariable UUID id) {
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
