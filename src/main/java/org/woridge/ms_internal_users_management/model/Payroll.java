@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.woridge.ms_internal_users_management.enumeration.PayrollStatus;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -37,9 +38,11 @@ public class Payroll {
     private Double baseSalaryAtDate;
 
     @Column(name = "total_overtime_hours")
+    @Builder.Default
     private Double totalOvertimeHours = 0.0;
 
     @Column(name = "total_absence_days")
+    @Builder.Default
     private Double totalAbsenceDays = 0.0;
 
     @Column(name = "gross_salary", nullable = false)
@@ -48,13 +51,16 @@ public class Payroll {
     @Column(name = "net_salary", nullable = false)
     private Double netSalary;
 
-    @Column(name = "is_validated")
-    private Boolean isValidated = false;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    @Builder.Default
+    private PayrollStatus status = PayrollStatus.EN_ATTENTE;
 
     @Column(name = "generated_at")
     private Instant generatedAt;
 
     @OneToMany(mappedBy = "payroll", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<PayrollDetail> details = new ArrayList<>();
 
     public void addDetail(PayrollDetail detail) {

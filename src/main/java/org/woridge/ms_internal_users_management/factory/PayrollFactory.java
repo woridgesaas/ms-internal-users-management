@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.woridge.ms_internal_users_management.dto.payroll.PayrollCalculationResult;
 import org.woridge.ms_internal_users_management.dto.payroll.PayrollInput;
+import org.woridge.ms_internal_users_management.enumeration.PayrollStatus;
 import org.woridge.ms_internal_users_management.model.Payroll;
 import org.woridge.ms_internal_users_management.model.PayrollDetail;
 import org.woridge.ms_internal_users_management.model.User;
@@ -31,7 +32,7 @@ public class PayrollFactory {
                 .grossSalary(result.getGrossSalary())
                 .netSalary(result.getNetToPay())
                 .generatedAt(Instant.now())
-                .isValidated(false)
+                .status(PayrollStatus.EN_ATTENTE)
                 .details(new ArrayList<>())
                 .build();
 
