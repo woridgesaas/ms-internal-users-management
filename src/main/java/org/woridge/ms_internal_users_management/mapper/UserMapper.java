@@ -55,6 +55,7 @@ public class UserMapper {
 
     public GetAllUserResponse toGetAllUserResponse(User user) {
         return GetAllUserResponse.builder()
+                .id(user.getId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
@@ -62,6 +63,7 @@ public class UserMapper {
                 .picturePath(user.getPicturePath())
                 .postName(user.getPost().getName())
                 .status(user.getStatus())
+                .createdAt(user.getCreatedAt())
                 .build();
     }
 }

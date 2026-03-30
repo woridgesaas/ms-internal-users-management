@@ -58,30 +58,57 @@ public class PromotionServiceImpl implements PromotionService {
     }
 
     @Override
-    public void updatePromotion(UUID id, UpdatePromotionRequest updatePromotionRequest) {
+    public void updatePromotion(UUID id, UpdatePromotionRequest request) {
 
-        if (!id.equals(updatePromotionRequest.promotionId())) {
-
+        //  Validation ID
+        if (!id.equals(request.promotionId())) {
             throw new PromotionIdNotMatchedException("Promotion id aren't matched");
         }
 
+        //  Récupérer promotion
         Promotion promotion = promotionRepository.findById(id)
-                .orElseThrow(() -> new PromotionNotFoundException("Promotion with the following id : " + id + " not found"));
+                .orElseThrow(() ->
+                        new PromotionNotFoundException(
+                                "Promotion with id " + id + " not found"
+                        )
+                );
 
-        SalaryHistory salaryHistory = salaryService.getCurrentSalary(promotion.getUser());
+        User user = promotion.getUser();
 
-        BigDecimal newSalary = salaryHistory.getSalary().add(updatePromotionRequest.bonus());
+        //  Récupérer nouveau post
+        Post newPost = getNewPost(request.newPostId(), user.getPost());
 
-        Post newPost = getNewPost(updatePromotionRequest.newPostId(), promotion.getUser().getPost());
+        //  BASE SALARY (IMPORTANT)
+        BigDecimal baseSalary = promotion.getPreviousSalary();
 
-        if (!hasPromotionChanged(promotion, newSalary, newPost, updatePromotionRequest)) {
+        //  CORRECT CALCULATION
+        BigDecimal newSalary = baseSalary.add(request.bonus());
 
+        //  Vérifier si changement
+        if (!hasPromotionChanged(promotion, newSalary, newPost, request)) {
             return;
         }
 
-        PromotionMapper.updatePromotion(promotion, salaryHistory, newPost, newSalary, updatePromotionRequest);
-    }
+        //  GESTION PROPRE DU SALARY HISTORY
 
+        // fermer ancien salaire
+        salaryService.closeCurrentSalary(user);
+
+        // créer nouveau salaire
+        salaryService.createNewSalary(user, newPost, newSalary);
+
+        // récupérer le nouveau salary history
+        SalaryHistory newSalaryHistory = salaryService.getCurrentSalary(user);
+
+        //  Mise à jour promotion
+        PromotionMapper.updatePromotion(
+                promotion,
+                newSalaryHistory,
+                newPost,
+                newSalary,
+                request
+        );
+    }
     @Override
     @Transactional(readOnly = true)
     public List<GetAllPromotionsResponse> getAllPromotions() {
@@ -121,7 +148,7 @@ public class PromotionServiceImpl implements PromotionService {
 
     private User findUser(String CIN) {
 
-        return userRepository.findByCIN(CIN).orElseThrow(() ->
+        return userRepository.findByCINWithDepartmentAndPost(CIN).orElseThrow(() ->
                 new UserNotFoundException("User with the following CIN : " + CIN + " not found"));
     }
 

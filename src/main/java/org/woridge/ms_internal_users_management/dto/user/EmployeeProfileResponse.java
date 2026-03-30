@@ -4,6 +4,8 @@ import org.woridge.ms_internal_users_management.dto.bank_information.BankInforma
 import org.woridge.ms_internal_users_management.dto.education.EducationDTO;
 import org.woridge.ms_internal_users_management.dto.professional_experience.ProfessionalExperienceDTO;
 
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,6 +20,8 @@ public record EmployeeProfileResponse(
         String role,
         String departmentName,
         String postName,
+        Instant createdAt,
+        LocalDate birthDate,
         BankInformationDTO bankInformation,
         List<EducationDTO> educations,
         List<ProfessionalExperienceDTO> experiences

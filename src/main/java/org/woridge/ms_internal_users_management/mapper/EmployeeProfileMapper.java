@@ -28,6 +28,8 @@ public class EmployeeProfileMapper {
                 user.getRole().getRoleName(),
                 user.getDepartment() != null ? user.getDepartment().getName() : null,
                 user.getPost() != null ? user.getPost().getName() : null,
+                user.getCreatedAt(),
+                user.getBirthDate(),
                 mapBank(user.getBankInformation()),
                 mapEducations(user.getEducations()),
                 mapExperiences(user.getProfessionalExperiences())
