@@ -21,6 +21,8 @@ rabbitmq:
     user-created: user.created
     resignation-created: resignation.created
     holiday-created: holiday.created
+    user-created-interview: user.created.interview
+
 
 server:
   port: 8081
