@@ -73,11 +73,13 @@ public class UserServiceImpl implements UserService {
         CreateUserResponse dto = userMapper.toCreateUserResponse(saved);
 
         try {
+            notificationEventPublisher.publishUserCreated(saved, tempPassword);
+            notificationEventPublisher.publishUserCreatedInterview(saved);
             // 5) Appel du service externe
             authServiceClient.createUser(saved, hashedPassword);
 
         } catch (Exception ex) {
-            // 6) Rollback si échec ms-auth
+            // 6) Rollback si échec ms-auth //commenter pour test
             userRepository.delete(saved);
             throw new AuthFailedException("Auth service failed. User rollback executed.");
         }

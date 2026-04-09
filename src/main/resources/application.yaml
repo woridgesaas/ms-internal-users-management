@@ -22,6 +22,8 @@ rabbitmq:
     user-sync: user.created                  #  attendance
     resignation-created: resignation.created
     holiday-created: holiday.created
+    user-created-interview: user.created.interview
+
 
 server:
   port: 8081
