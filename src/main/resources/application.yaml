@@ -16,9 +16,10 @@ spring:
 
 rabbitmq:
   exchange:
-    notification: woridge.exchange
+    notification: notification.exchange
   routing:
-    user-created: user.created
+    user-created: notification.user.created   #  email
+    user-sync: user.created                  #  attendance
     resignation-created: resignation.created
     holiday-created: holiday.created
     user-created-interview: user.created.interview

@@ -7,11 +7,14 @@ import org.springframework.stereotype.Service;
 import org.woridge.ms_internal_users_management.messaging.event.CreateUserNotificationEvent;
 import org.woridge.ms_internal_users_management.messaging.event.HolidayCreatedEvent;
 import org.woridge.ms_internal_users_management.messaging.event.ResignationCreatedEvent;
+import org.woridge.ms_internal_users_management.messaging.event.UserCreatedEvent;
 import org.woridge.ms_internal_users_management.messaging.event.UserCreatedInterviewEvent;
 import org.woridge.ms_internal_users_management.model.Holiday;
 import org.woridge.ms_internal_users_management.model.User;
 
 import java.time.LocalDate;
+
+import static reactor.netty.http.HttpConnectionLiveness.log;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +24,9 @@ public class NotificationEventPublisher {
 
     @Value("${rabbitmq.exchange.notification}")
     private String exchange;
+
+    @Value("${rabbitmq.routing.user-sync}")
+    private String userSyncRoutingKey;
 
     @Value("${rabbitmq.routing.user-created}")
     private String routingKey;
@@ -70,6 +76,22 @@ public class NotificationEventPublisher {
                 .build();
 
         rabbitTemplate.convertAndSend(exchange, holidayRoutingKey, event);
+    }
+    public void publishUserSync(User user) {
+
+        UserCreatedEvent event = new UserCreatedEvent(
+                user.getCIN(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getDepartment().getId().toString(),
+                user.getRole().name()
+        );
+
+        rabbitTemplate.convertAndSend(exchange, userSyncRoutingKey, event, message -> {
+            message.getMessageProperties().setContentType("application/json");
+            return message;
+        });
     }
  //pour synchroniser ms interview avec ms internal user management
     @Value("${rabbitmq.routing.user-created-interview}")

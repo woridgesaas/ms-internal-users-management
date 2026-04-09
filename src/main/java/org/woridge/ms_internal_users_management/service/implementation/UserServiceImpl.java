@@ -28,6 +28,8 @@ import org.woridge.ms_internal_users_management.utils.PasswordGenerator;
 import java.util.List;
 import java.util.UUID;
 
+import static reactor.netty.http.HttpConnectionLiveness.log;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -81,6 +83,11 @@ public class UserServiceImpl implements UserService {
             userRepository.delete(saved);
             throw new AuthFailedException("Auth service failed. User rollback executed.");
         }
+        // notification email
+        notificationEventPublisher.publishUserCreated(saved, tempPassword);
+        notificationEventPublisher.publishUserSync(saved);
+        log.error("🔥 BEFORE SYNC 🔥");
+        notificationEventPublisher.publishUserSync(saved);
         return dto;
     }
 
