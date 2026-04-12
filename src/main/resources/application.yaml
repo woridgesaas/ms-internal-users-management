@@ -23,6 +23,7 @@ rabbitmq:
     resignation-created: resignation.created
     holiday-created: holiday.created
     user-created-interview: user.created.interview
+    user-created-document: user.created.document #ms-document
 
 
 server:

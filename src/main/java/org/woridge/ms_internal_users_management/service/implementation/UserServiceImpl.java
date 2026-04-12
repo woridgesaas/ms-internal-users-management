@@ -58,6 +58,7 @@ public class UserServiceImpl implements UserService {
         // 3) generate temp password + encode
         String tempPassword = PasswordGenerator.generate();
         String hashedPassword = passwordEncoder.encode(tempPassword);
+
         Role role = Role.valueOf(request.getRole());
 
         // 4) map + save
@@ -75,6 +76,7 @@ public class UserServiceImpl implements UserService {
         try {
             notificationEventPublisher.publishUserCreated(saved, tempPassword);
             notificationEventPublisher.publishUserCreatedInterview(saved);
+            notificationEventPublisher.publishUserSync(user);
             // 5) Appel du service externe
             authServiceClient.createUser(saved, hashedPassword);
 
@@ -86,8 +88,7 @@ public class UserServiceImpl implements UserService {
         // notification email
         notificationEventPublisher.publishUserCreated(saved, tempPassword);
         notificationEventPublisher.publishUserSync(saved);
-        log.error("🔥 BEFORE SYNC 🔥");
-        notificationEventPublisher.publishUserSync(saved);
+        notificationEventPublisher.publishUserCreatedForDocument(saved);
         return dto;
     }
 

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class UserCreatedEvent {
-    private String cin;
+    private String Cin;
     private String firstName;
     private String lastName;
     private String email;
