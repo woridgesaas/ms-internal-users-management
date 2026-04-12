@@ -58,9 +58,7 @@ public class UserServiceImpl implements UserService {
         // 3) generate temp password + encode
         String tempPassword = PasswordGenerator.generate();
         String hashedPassword = passwordEncoder.encode(tempPassword);
-        // 🔴 LOG TEMPORAIRE (à supprimer après test)
-        System.out.println("TEMP PASSWORD (plain) = " + tempPassword);
-        System.out.println("HASHED PASSWORD = " + hashedPassword);
+
         Role role = Role.valueOf(request.getRole());
 
         // 4) map + save
