@@ -3,6 +3,7 @@ package org.woridge.ms_internal_users_management.service.implementation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.woridge.ms_internal_users_management.exception.salary.SalaryNotFoundException;
+import org.woridge.ms_internal_users_management.messaging.publisher.NotificationEventPublisher;
 import org.woridge.ms_internal_users_management.model.Post;
 import org.woridge.ms_internal_users_management.model.SalaryHistory;
 import org.woridge.ms_internal_users_management.model.User;
@@ -13,11 +14,17 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+
+
 @Service
 @RequiredArgsConstructor
 public class SalaryServiceImpl implements SalaryService {
 
     private final SalaryHistoryRepository salaryHistoryRepository;
+    private final NotificationEventPublisher
+            notificationEventPublisher;
+    private final jakarta.servlet.http.HttpServletRequest
+            httpServletRequest;
 
     @Override
     public void closeCurrentSalary(User user) {
@@ -30,7 +37,10 @@ public class SalaryServiceImpl implements SalaryService {
     }
 
     @Override
-    public void createNewSalary(User user, Post post, BigDecimal salary) {
+    public void createNewSalary(
+            User user,
+            Post post,
+            BigDecimal salary) {
 
         SalaryHistory history = new SalaryHistory();
         history.setUser(user);
@@ -39,6 +49,25 @@ public class SalaryServiceImpl implements SalaryService {
         history.setValidFrom(LocalDate.now());
 
         salaryHistoryRepository.save(history);
+
+        // ── Event chatbot ──
+        String tenant = httpServletRequest
+                .getHeader("X-Subdomain");
+        if (tenant == null || tenant.isBlank()) {
+            tenant = "dev-local";
+        }
+
+        // Format mois : "2026-04"
+        String mois = LocalDate.now()
+                .toString().substring(0, 7);
+
+        notificationEventPublisher
+                .publishSalaireChatbot(
+                        user.getId().toString(),
+                        salary,
+                        mois,
+                        tenant
+                );
     }
 
     @Override

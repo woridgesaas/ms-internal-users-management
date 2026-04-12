@@ -76,7 +76,6 @@ public class UserServiceImpl implements UserService {
         try {
             notificationEventPublisher.publishUserCreated(saved, tempPassword);
             notificationEventPublisher.publishUserCreatedInterview(saved);
-            notificationEventPublisher.publishUserSync(user);
             // 5) Appel du service externe
             authServiceClient.createUser(saved, hashedPassword);
 
@@ -88,6 +87,17 @@ public class UserServiceImpl implements UserService {
         // notification email
         notificationEventPublisher.publishUserCreated(saved, tempPassword);
         notificationEventPublisher.publishUserSync(saved);
+        String tenant = httpServletRequest
+                .getHeader("X-Subdomain");
+
+        if (tenant == null || tenant.isBlank()) {
+            tenant = "dev-local"; // fallback
+        }
+
+   //   ── Publier pour ms-chatbot ──
+        notificationEventPublisher.publishUserChatbotSync(saved, tenant);
+//        log.error("🔥 BEFORE SYNC 🔥");
+//        notificationEventPublisher.publishUserSync(saved);
         notificationEventPublisher.publishUserCreatedForDocument(saved);
         return dto;
     }

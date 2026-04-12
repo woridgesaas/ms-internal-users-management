@@ -32,32 +32,55 @@ public class ResignationServiceImpl implements ResignationService {
     private final ResignationMapper          resignationMapper;
     private final NotificationEventPublisher notificationEventPublisher;
 
-    @Override
-    public ResignationResponse create(ResignationCreateRequest request, String companyName) {
+    // Ajouter dans les dépendances de la classe
+    private final jakarta.servlet.http.HttpServletRequest
+            httpServletRequest;
 
-        User user = userRepository.findByCIN(request.cin())
-                .orElseThrow(() -> new UserNotFoundException(
-                        "User not found with CIN: " + request.cin()));
+    @Override
+    public ResignationResponse create(
+            ResignationCreateRequest request,
+            String companyName) {
+
+        User user = userRepository
+                .findByCIN(request.cin())
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found with CIN: "
+                                        + request.cin()
+                        )
+                );
 
         if (resignationRepository.existsByUser(user)) {
             throw new ResignationAlreadyExistsException(
-                    "Resignation already exists for this user");
+                    "Resignation already exists"
+            );
         }
 
         Resignation saved = resignationRepository.save(
-                resignationMapper.toEntity(request, user));
-
-        notificationEventPublisher.publishResignationCreated(
-                saved.getId().toString(),
-                user,
-                saved.getResignationDate(),
-                saved.getReason(),
-                companyName
+                resignationMapper.toEntity(request, user)
         );
+
+        // ── Event notification email (existant) ──
+        notificationEventPublisher
+                .publishResignationCreated(
+                        saved.getId().toString(),
+                        user,
+                        saved.getResignationDate(),
+                        saved.getReason(),
+                        companyName
+                );
+
+        // ── Event chatbot ──
+        // companyName = X-Subdomain = tenant
+        notificationEventPublisher
+                .publishResignationChatbot(
+                        user.getId().toString(),
+                        saved.getResignationDate(),
+                        companyName
+                );
 
         return resignationMapper.toResponse(saved);
     }
-
     @Override
     public ResignationResponse getById(UUID id) {
         return resignationMapper.toResponse(findResignationById(id));
