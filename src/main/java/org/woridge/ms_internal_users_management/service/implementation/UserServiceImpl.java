@@ -58,6 +58,7 @@ public class UserServiceImpl implements UserService {
         // 3) generate temp password + encode
         String tempPassword = PasswordGenerator.generate();
         String hashedPassword = passwordEncoder.encode(tempPassword);
+
         Role role = Role.valueOf(request.getRole());
 
         // 4) map + save
@@ -97,6 +98,7 @@ public class UserServiceImpl implements UserService {
         notificationEventPublisher.publishUserChatbotSync(saved, tenant);
 //        log.error("🔥 BEFORE SYNC 🔥");
 //        notificationEventPublisher.publishUserSync(saved);
+        notificationEventPublisher.publishUserCreatedForDocument(saved);
         return dto;
     }
 

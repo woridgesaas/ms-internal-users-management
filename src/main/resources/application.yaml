@@ -28,6 +28,7 @@ rabbitmq:
     chatbot-sync: user.chatbot.sync
     chatbot-resignation: chatbot.resignation.created
     chatbot-salary: chatbot.salary.verse
+    user-created-document: user.created.document #ms-document
 
 
 server:

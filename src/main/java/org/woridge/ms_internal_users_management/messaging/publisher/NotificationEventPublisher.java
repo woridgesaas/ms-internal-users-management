@@ -109,6 +109,19 @@ public class NotificationEventPublisher {
 
         rabbitTemplate.convertAndSend(exchange, userCreatedInterviewRoutingKey, event);
     }
+    @Value("${rabbitmq.routing.user-created-document}")
+    private String userCreatedDocumentRoutingKey;
+
+    public void publishUserCreatedForDocument(User user) {
+
+        UserCreatedForDocumentEvent event =
+                new UserCreatedForDocumentEvent(
+                        user.getId().toString(),
+                        user.getCIN()
+                );
+
+        rabbitTemplate.convertAndSend(exchange, userCreatedDocumentRoutingKey, event);
+    }
 //pour synchroniser ms chatbot avec ms internal user management
     // ── Routing key chatbot ──
     @Value("${rabbitmq.routing.chatbot-sync}")
