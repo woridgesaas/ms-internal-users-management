@@ -86,8 +86,17 @@ public class UserServiceImpl implements UserService {
         // notification email
         notificationEventPublisher.publishUserCreated(saved, tempPassword);
         notificationEventPublisher.publishUserSync(saved);
-        log.error("🔥 BEFORE SYNC 🔥");
-        notificationEventPublisher.publishUserSync(saved);
+        String tenant = httpServletRequest
+                .getHeader("X-Subdomain");
+
+        if (tenant == null || tenant.isBlank()) {
+            tenant = "dev-local"; // fallback
+        }
+
+   //   ── Publier pour ms-chatbot ──
+        notificationEventPublisher.publishUserChatbotSync(saved, tenant);
+//        log.error("🔥 BEFORE SYNC 🔥");
+//        notificationEventPublisher.publishUserSync(saved);
         return dto;
     }
 

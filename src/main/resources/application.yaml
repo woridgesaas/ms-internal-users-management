@@ -17,12 +17,17 @@ spring:
 rabbitmq:
   exchange:
     notification: notification.exchange
+    chatbot-resignation: woridge.resignation.exchange
+    chatbot-salary: woridge.salary.exchange
   routing:
     user-created: notification.user.created   #  email
     user-sync: user.created                  #  attendance
     resignation-created: resignation.created
     holiday-created: holiday.created
     user-created-interview: user.created.interview
+    chatbot-sync: user.chatbot.sync
+    chatbot-resignation: chatbot.resignation.created
+    chatbot-salary: chatbot.salary.verse
 
 
 server:
