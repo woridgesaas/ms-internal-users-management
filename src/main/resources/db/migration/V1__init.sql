@@ -91,14 +91,17 @@ CREATE TABLE promotions
 -- Bank information table
 CREATE TABLE bank_informations
 (
-    id             UUID PRIMARY KEY,
-    user_id        UUID                                  NOT NULL UNIQUE,
-    name           VARCHAR(50)                           NOT NULL,
-    account_number VARCHAR(100)                          NOT NULL,
-    code_iban      VARCHAR(100)                          NOT NULL,
-    agency         VARCHAR(50)                           NOT NULL,
-    created_at     TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at     TIMESTAMPTZ,
+    id                  UUID PRIMARY KEY,
+    name                VARCHAR(50)                           NOT NULL,
+    account_holder_name VARCHAR(50)                           NOT NULL,
+    RIB                 VARCHAR(24) UNIQUE                    NOT NULL,
+    IBAN                VARCHAR(28) UNIQUE                    NOT NULL,
+    agency_name         VARCHAR(50)                           NOT NULL,
+    agency_city         VARCHAR(50)                           NOT NULL,
+    created_at          TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at          TIMESTAMPTZ,
+    user_id             UUID UNIQUE                           NOT NULL,
+
     CONSTRAINT fk_bank_information_user
         FOREIGN KEY (user_id)
             REFERENCES users (id)
@@ -109,14 +112,18 @@ CREATE TABLE bank_informations
 -- Education table
 CREATE TABLE educations
 (
-    id               UUID PRIMARY KEY,
-    user_id          UUID                                  NOT NULL,
-    university       VARCHAR(50)                           NOT NULL,
-    field_of_study   VARCHAR(50)                           NOT NULL,
-    degree           VARCHAR(50)                           NOT NULL,
-    start_final_year VARCHAR(50)                           NOT NULL,
-    created_at       TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at       TIMESTAMPTZ,
+    id             UUID PRIMARY KEY,
+    type           VARCHAR(20)                           NOT NULL, -- EDUCATION / FORMATION
+    title          VARCHAR(50)                           NOT NULL,
+    start_date     DATE                                  NOT NULL,
+    end_date       DATE,
+    description    TEXT,
+    field_of_study VARCHAR(50)                           NOT NULL,
+    institution    VARCHAR(50)                           NOT NULL, -- University or  formation center
+    created_at     TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at     TIMESTAMPTZ,
+    user_id        UUID                                  NOT NULL,
+
     CONSTRAINT fk_education_user
         FOREIGN KEY (user_id)
             REFERENCES users (id)

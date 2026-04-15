@@ -9,27 +9,37 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface UserRepository extends JpaRepository<User,UUID> {
+public interface UserRepository extends JpaRepository<User, UUID> {
+
     boolean existsByEmailIgnoreCase(String email);
+
     boolean existsByCINIgnoreCase(String cin);
+
+    boolean existsByEmailIgnoreCaseAndIdNot(String email, UUID id);
+
+    boolean existsByCINIgnoreCaseAndIdNot(String cin, UUID id);
+
     long countByDepartmentId(UUID departmentId);
 
     @Query("""
-       SELECT u.department.id, COUNT(u)
-        FROM User u
-        WHERE u.department.id IN :departmentIds
-        GROUP BY u.department.id""")
+            SELECT u.department.id, COUNT(u)
+             FROM User u
+             WHERE u.department.id IN :departmentIds
+             GROUP BY u.department.id""")
     List<Object[]> countEmployeesByDepartments(List<UUID> departmentIds);
-    Optional<User> findWithFullProfileById(UUID id);
-    Optional<User> findByCIN(String cin);
-    Optional<User> findByIdAndStatus(UUID id, Status status);
-    @Query("""
-        SELECT u
-        FROM User u
-        LEFT JOIN FETCH u.department
-        LEFT JOIN FETCH u.post
-        WHERE u.CIN = :cin
-    """)
-    Optional<User> findByCINWithDepartmentAndPost(String cin);
 
+    Optional<User> findWithFullProfileById(UUID id);
+
+    Optional<User> findByCIN(String cin);
+
+    Optional<User> findByIdAndStatus(UUID id, Status status);
+
+    @Query("""
+                SELECT u
+                FROM User u
+                LEFT JOIN FETCH u.department
+                LEFT JOIN FETCH u.post
+                WHERE u.CIN = :cin
+            """)
+    Optional<User> findByCINWithDepartmentAndPost(String cin);
 }
