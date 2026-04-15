@@ -1,9 +1,7 @@
 package org.woridge.ms_internal_users_management.mapper;
 
 import org.springframework.stereotype.Component;
-import org.woridge.ms_internal_users_management.dto.user.CreateUserRequest;
-import org.woridge.ms_internal_users_management.dto.user.CreateUserResponse;
-import org.woridge.ms_internal_users_management.dto.user.GetAllUserResponse;
+import org.woridge.ms_internal_users_management.dto.user.*;
 import org.woridge.ms_internal_users_management.enumeration.Role;
 import org.woridge.ms_internal_users_management.enumeration.Status;
 import org.woridge.ms_internal_users_management.model.Department;
@@ -12,6 +10,7 @@ import org.woridge.ms_internal_users_management.model.User;
 import org.woridge.ms_internal_users_management.utils.StringUtils;
 
 import java.time.Instant;
+import java.util.List;
 
 @Component
 public class UserMapper {
@@ -64,6 +63,52 @@ public class UserMapper {
                 .postName(user.getPost().getName())
                 .status(user.getStatus())
                 .createdAt(user.getCreatedAt())
+                .build();
+    }
+
+    public void updateUser(User currentUser, UpdateUserPersonalInformationRequest updateUserPersonalInformationRequest) {
+
+        currentUser.setFirstName(updateUserPersonalInformationRequest.firstName());
+        currentUser.setLastName(updateUserPersonalInformationRequest.lastName());
+        currentUser.setCIN(updateUserPersonalInformationRequest.cin());
+        currentUser.setEmail(updateUserPersonalInformationRequest.email());
+        currentUser.setPhoneNumber(updateUserPersonalInformationRequest.phone());
+        currentUser.setBirthDate(updateUserPersonalInformationRequest.birthDate());
+        currentUser.setAddress(updateUserPersonalInformationRequest.address());
+        currentUser.setPicturePath(updateUserPersonalInformationRequest.profileImageUrl());
+    }
+
+    public UserProfileResponse toUserProfileResponse(User user) {
+
+        return UserProfileResponse
+                .builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .CIN(user.getCIN())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .address(user.getAddress())
+                .picturePath(user.getPicturePath())
+                .role(user.getRole().getRoleName())
+                .departmentName(user.getDepartment() != null ? user.getDepartment().getName() : null)
+                .postName(user.getPost() != null ? user.getPost().getName() : null)
+                .createdAt(user.getCreatedAt())
+                .birthDate(user.getBirthDate())
+                .bankInformationSummary(user.getBankInformation() != null ? BankInformationMapper.toBankInformationSummary(user.getBankInformation()) : null)
+                .educationSummaries(user.getEducations() != null ? EducationMapper.toEducationSummaries(user.getEducations()) : List.of())
+                .experienceSummaries(user.getProfessionalExperiences() != null ? ProfessionalExperienceMapper.toProfessionalExperienceSummaries(user.getProfessionalExperiences()) : List.of())
+                .build();
+    }
+
+    public CurrentUserProfileResponse toCurrentUserProfileResponse(User user) {
+
+        return CurrentUserProfileResponse
+                .builder()
+                .id(user.getId())
+                .fullName(user.getFirstName() + " " + user.getLastName())
+                .email(user.getEmail())
+                .picturePath(user.getPicturePath())
                 .build();
     }
 }

@@ -1,7 +1,6 @@
 package org.woridge.ms_internal_users_management.service.implementation;
 
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,26 +30,26 @@ import java.util.UUID;
 import static reactor.netty.http.HttpConnectionLiveness.log;
 
 @Service
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final UserValidator userValidator;
+    private final UserMapper userMapper;
     private final DepartmentRepository departmentRepository;
     private final PostRepository postRepository;
     private final PasswordEncoder passwordEncoder;
-    private final UserMapper userMapper;
-    private final UserValidator userValidator;
-    private final HttpServletRequest httpServletRequest;
     private final AuthServiceClient authServiceClient;
     private final NotificationEventPublisher notificationEventPublisher;
     private final SalaryService salaryService;
 
+    @Override
     @Transactional
     public CreateUserResponse createUser(CreateUserRequest request) {
 
         // 1) unicité
-        userValidator.checkUniqueEmail(request.getEmail());
-        userValidator.checkUniqueCIN(request.getCIN());
+        userValidator.validateUserForCreation(request.getEmail(), request.getCIN());
+
         // 2) department
         Department department = departmentRepository.findById(request.getDepartmentId()).orElseThrow(() -> new DepartmentNotFoundException("department not found"));
         Post post = postRepository.findById(request.getPostId()).orElseThrow(() -> new PostNotFoundException("post not found"));
@@ -103,6 +102,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
+    public void updateUserPersonalInformation(UUID userId, UpdateUserPersonalInformationRequest updateUserPersonalInformationRequest) {
+
+        User currentUser = userRepository.findById(userId).orElseThrow(() ->
+                new UserNotFoundException("User with id : " + userId + " not found"));
+
+        userValidator.validateUserForUpdate(currentUser.getId(), updateUserPersonalInformationRequest.email(), updateUserPersonalInformationRequest.cin());
+
+        userMapper.updateUser(currentUser, updateUserPersonalInformationRequest);
+
+        userRepository.save(currentUser);
+    }
+
+    @Override
     public UserSearchResponse searchByCin(String cin) {
         User user = userRepository.findByCIN(cin)
                 .orElseThrow(() -> new UserNotFoundException("User not found with CIN: " + cin));
@@ -114,6 +127,7 @@ public class UserServiceImpl implements UserService {
                 user.getDepartment() != null ? user.getDepartment().getName() : ""
         );
     }
+
     public UUID findIdByCIN(String cin) {
         return userRepository.findByCIN(cin)
                 .orElseThrow(() -> new UserNotFoundException("user not found"))
@@ -121,9 +135,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserProfileResponse getUserProfile(UUID userId) {
+
+        User user = userRepository.findWithFullProfileById(userId).orElseThrow(() ->
+                new UserNotFoundException("User with id : " + userId + " not found"));
+
+        return userMapper.toUserProfileResponse(user);
+    }
+
+    @Override
     public List<GetAllUserResponse> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(u -> userMapper.toGetAllUserResponse(u))
                 .toList();
+    }
+
+    @Override
+    public CurrentUserProfileResponse getCurrentUserProfile(String CIN) {
+
+        User user = userRepository.findByCIN(CIN).orElseThrow(() ->
+                new UserNotFoundException("User with CIN : " + CIN + " not found"));
+
+        return userMapper.toCurrentUserProfileResponse(user);
     }
 }

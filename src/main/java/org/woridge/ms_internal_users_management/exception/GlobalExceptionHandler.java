@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.woridge.ms_internal_users_management.dto.ErrorResponse;
 import org.woridge.ms_internal_users_management.enumeration.ErrorCode;
+import org.woridge.ms_internal_users_management.exception.bank_information.*;
+import org.woridge.ms_internal_users_management.exception.education.*;
 import org.woridge.ms_internal_users_management.exception.post.PostAlreadyExistsException;
 import org.woridge.ms_internal_users_management.exception.post.PostIdNotMatchedException;
 import org.woridge.ms_internal_users_management.exception.post.PostNameDuplicatedException;
@@ -20,9 +22,15 @@ import org.woridge.ms_internal_users_management.exception.holiday.FixedHolidayUp
 import org.woridge.ms_internal_users_management.exception.holiday.HolidayExistException;
 import org.woridge.ms_internal_users_management.exception.holiday.HolidayNotFoundException;
 import org.woridge.ms_internal_users_management.exception.holiday.InvalidHolidayDateException;
+import org.woridge.ms_internal_users_management.exception.professional_experience.*;
+import org.woridge.ms_internal_users_management.exception.profile_update_request.PendingProfileUpdateRequestAlreadyExistsException;
+import org.woridge.ms_internal_users_management.exception.profile_update_request.ProfileUpdateRequestNotFoundException;
+import org.woridge.ms_internal_users_management.exception.profile_update_request.ProfileUpdateRequestNotPendingException;
 import org.woridge.ms_internal_users_management.exception.promotion.PromotionIdNotMatchedException;
 import org.woridge.ms_internal_users_management.exception.promotion.PromotionNotFoundException;
 import org.woridge.ms_internal_users_management.exception.promotion.UserHasNoAssignedPostException;
+import org.woridge.ms_internal_users_management.exception.request.MissingCinInRequestHeaderException;
+import org.woridge.ms_internal_users_management.exception.request.MissingRoleInRequestHeaderException;
 import org.woridge.ms_internal_users_management.exception.resignation.ResignationAlreadyExistsException;
 import org.woridge.ms_internal_users_management.exception.resignation.ResignationNotFoundException;
 import org.woridge.ms_internal_users_management.exception.salary.SalaryNotFoundException;
@@ -70,8 +78,8 @@ public class GlobalExceptionHandler {
                 );
     }
 
-    @ExceptionHandler(CINDuplicatedException.class)
-    public ResponseEntity<ErrorResponse<String>> handleCINDuplicatedException(CINDuplicatedException exception) {
+    @ExceptionHandler(CinDuplicatedException.class)
+    public ResponseEntity<ErrorResponse<String>> handleCINDuplicatedException(CinDuplicatedException exception) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(
@@ -166,9 +174,62 @@ public class GlobalExceptionHandler {
                 );
     }
 
-    // Education
+    // Education exceptions
+    @ExceptionHandler(EducationDoesNotBelongToUserException.class)
+    public ResponseEntity<ErrorResponse<String>> handleEducationDoesNotBelongToUserException(EducationDoesNotBelongToUserException exception) {
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(
+                        ErrorResponse.createErrorResponse(
+                                exception.getMessage(),
+                                ErrorCode.EDUCATION_DOES_NOT_BELONG_TO_USER
+                        )
+                );
+    }
+
+    @ExceptionHandler(EducationDuplicatedException.class)
+    public ResponseEntity<ErrorResponse<String>> handleEducationDuplicatedException(EducationDuplicatedException exception) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(
+                        ErrorResponse.createErrorResponse(
+                                exception.getMessage(),
+                                ErrorCode.EDUCATION_DUPLICATED
+                        )
+                );
+    }
+
+    @ExceptionHandler(EducationEndDateMissingException.class)
+    public ResponseEntity<ErrorResponse<String>> handleEducationEndDateMissingException(EducationEndDateMissingException exception) {
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(
+                        ErrorResponse.createErrorResponse(
+                                exception.getMessage(),
+                                ErrorCode.EDUCATION_END_DATE_MISSING
+                        )
+                );
+    }
+
+    @ExceptionHandler(EducationIdNotMatchedException.class)
+    public ResponseEntity<ErrorResponse<String>> handleEducationIdNotMatchedException(EducationIdNotMatchedException exception) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(
+                        ErrorResponse.createErrorResponse(
+                                exception.getMessage(),
+                                ErrorCode.EDUCATION_ID_MISMATCH
+                        )
+                );
+    }
+
     @ExceptionHandler(EducationNotFoundException.class)
     public ResponseEntity<ErrorResponse<String>> handleEducationNotFoundException(EducationNotFoundException exception) {
+
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(
@@ -179,22 +240,172 @@ public class GlobalExceptionHandler {
                 );
     }
 
-    // Bank
-    @ExceptionHandler(BankInformationMissingException.class)
-    public ResponseEntity<ErrorResponse<String>> handleBankInformationMissingException(BankInformationMissingException exception) {
+    @ExceptionHandler(InvalidEducationEndDateException.class)
+    public ResponseEntity<ErrorResponse<String>> handleInvalidEducationEndDateException(InvalidEducationEndDateException exception) {
+
+        return ResponseEntity
+                .status(HttpStatus.UNPROCESSABLE_CONTENT)
+                .body(
+                        ErrorResponse.createErrorResponse(
+                                exception.getMessage(),
+                                ErrorCode.INVALID_EDUCATION_END_DATE
+                        )
+                );
+    }
+
+    // Bank information exceptions
+    @ExceptionHandler(BankInformationDuplicatedException.class)
+    public ResponseEntity<ErrorResponse<String>> handleBankInformationDuplicatedException(BankInformationDuplicatedException exception)
+    {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(
+                        ErrorResponse.createErrorResponse(
+                                exception.getMessage(),
+                                ErrorCode.BANK_INFORMATION_DUPLICATED
+                        )
+                );
+    }
+
+    @ExceptionHandler(BankInformationIdNotMatchedException.class)
+    public ResponseEntity<ErrorResponse<String>> handleBankInformationIdNotMatchedException(BankInformationIdNotMatchedException exception)
+    {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(
+                        ErrorResponse.createErrorResponse(
+                                exception.getMessage(),
+                                ErrorCode.BANK_INFORMATION_ID_MISMATCH
+                        )
+                );
+    }
+
+    @ExceptionHandler(BankInformationNotFoundException.class)
+    public ResponseEntity<ErrorResponse<String>> handleBankInformationNotFoundException(BankInformationNotFoundException exception)
+    {
+
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(
                         ErrorResponse.createErrorResponse(
                                 exception.getMessage(),
-                                ErrorCode.BANK_INFORMATION_MISSING
+                                ErrorCode.BANK_INFORMATION_NOT_FOUND
                         )
                 );
     }
 
-    // Experience
+    @ExceptionHandler(IbanDuplicatedException.class)
+    public ResponseEntity<ErrorResponse<String>> handleIbanDuplicatedException(IbanDuplicatedException exception)
+    {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(
+                        ErrorResponse.createErrorResponse(
+                                exception.getMessage(),
+                                ErrorCode.IBAN_DUPLICATED
+                        )
+                );
+    }
+
+    @ExceptionHandler(RibDuplicatedException.class)
+    public ResponseEntity<ErrorResponse<String>> handleRibDuplicatedException(RibDuplicatedException exception)
+    {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(
+                        ErrorResponse.createErrorResponse(
+                                exception.getMessage(),
+                                ErrorCode.RIB_DUPLICATED
+                        )
+                );
+    }
+
+    // Professional experience exceptions
+    @ExceptionHandler(CurrentProfessionalExperienceWithEndDateException.class)
+    public ResponseEntity<ErrorResponse<String>> handleCurrentProfessionalExperienceWithEndDateException(CurrentProfessionalExperienceWithEndDateException exception) {
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(
+                        ErrorResponse.createErrorResponse(
+                                exception.getMessage(),
+                                ErrorCode.CURRENT_PROFESSIONAL_EXPERIENCE_WITH_END_DATE
+                        )
+                );
+    }
+
+    @ExceptionHandler(InvalidProfessionalExperienceEndDateException.class)
+    public ResponseEntity<ErrorResponse<String>> handleInvalidProfessionalExperienceEndDateException(InvalidProfessionalExperienceEndDateException exception) {
+
+        return ResponseEntity
+                .status(HttpStatus.UNPROCESSABLE_CONTENT)
+                .body(
+                        ErrorResponse.createErrorResponse(
+                                exception.getMessage(),
+                                ErrorCode.INVALID_PROFESSIONAL_EXPERIENCE_END_DATE
+                        )
+                );
+    }
+
+    @ExceptionHandler(ProfessionalExperienceDoesNotBelongToUserException.class)
+    public ResponseEntity<ErrorResponse<String>> handleProfessionalExperienceDoesNotBelongToUserException(ProfessionalExperienceDoesNotBelongToUserException exception) {
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(
+                        ErrorResponse.createErrorResponse(
+                                exception.getMessage(),
+                                ErrorCode.PROFESSIONAL_EXPERIENCE_DOES_NOT_BELONG_TO_USER
+                        )
+                );
+    }
+
+    @ExceptionHandler(ProfessionalExperienceDuplicatedException.class)
+    public ResponseEntity<ErrorResponse<String>> handleProfessionalExperienceDuplicatedException(ProfessionalExperienceDuplicatedException exception) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(
+                        ErrorResponse.createErrorResponse(
+                                exception.getMessage(),
+                                ErrorCode.PROFESSIONAL_EXPERIENCE_DUPLICATED
+                        )
+                );
+    }
+
+    @ExceptionHandler(ProfessionalExperienceEndDateMissingException.class)
+    public ResponseEntity<ErrorResponse<String>> handleProfessionalExperienceEndDateMissingException(ProfessionalExperienceEndDateMissingException exception) {
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(
+                        ErrorResponse.createErrorResponse(
+                                exception.getMessage(),
+                                ErrorCode.PROFESSIONAL_EXPERIENCE_END_DATE_MISSING
+                        )
+                );
+    }
+
+    @ExceptionHandler(ProfessionalExperienceIdNotMatchedException.class)
+    public ResponseEntity<ErrorResponse<String>> handleProfessionalExperienceIdNotMatchedException(ProfessionalExperienceIdNotMatchedException exception) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(
+                        ErrorResponse.createErrorResponse(
+                                exception.getMessage(),
+                                ErrorCode.PROFESSIONAL_EXPERIENCE_ID_MISMATCH
+                        )
+                );
+    }
+
     @ExceptionHandler(ProfessionalExperienceNotFoundException.class)
     public ResponseEntity<ErrorResponse<String>> handleProfessionalExperienceNotFoundException(ProfessionalExperienceNotFoundException exception) {
+
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(
@@ -280,65 +491,43 @@ public class GlobalExceptionHandler {
                 );
     }
 
-    // UpdateRequest
-    @ExceptionHandler(NoUserUpdateChangesException.class)
-    public ResponseEntity<ErrorResponse<String>> handleNoUserUpdateChangesException(NoUserUpdateChangesException exception) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(
-                        ErrorResponse.createErrorResponse(
-                                exception.getMessage(),
-                                ErrorCode.NO_USER_UPDATE_CHANGES
-                        )
-                );
-    }
+    // Profile update request exceptions
+    @ExceptionHandler(PendingProfileUpdateRequestAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse<String>> handlePendingProfileUpdateRequestAlreadyExistsException(PendingProfileUpdateRequestAlreadyExistsException exception) {
 
-    @ExceptionHandler(PendingRequestAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse<String>> handlePendingRequestAlreadyExistsException(PendingRequestAlreadyExistsException exception) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(
                         ErrorResponse.createErrorResponse(
                                 exception.getMessage(),
-                                ErrorCode.PENDING_REQUEST_ALREADY_EXISTS
+                                ErrorCode.PENDING_PROFILE_UPDATE_REQUEST_ALREADY_EXISTS
                         )
                 );
     }
 
-    @ExceptionHandler(RequestAlreadyProcessedException.class)
-    public ResponseEntity<ErrorResponse<String>> handleRequestAlreadyProcessedException(RequestAlreadyProcessedException exception) {
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(
-                        ErrorResponse.createErrorResponse(
-                                exception.getMessage(),
-                                ErrorCode.REQUEST_ALREADY_PROCESSED
-                        )
-                );
+    @ExceptionHandler(ProfileUpdateRequestNotFoundException.class)
+    public ResponseEntity<ErrorResponse<String>> handleProfileUpdateRequestNotFoundException(ProfileUpdateRequestNotFoundException exception) {
 
-    }
-
-    @ExceptionHandler(UpdateRequestNotFoundException.class)
-    public ResponseEntity<ErrorResponse<String>> handleUpdateRequestNotFoundException(UpdateRequestNotFoundException exception) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(
                         ErrorResponse.createErrorResponse(
                                 exception.getMessage(),
-                                ErrorCode.UPDATE_REQUEST_NOT_FOUND
+                                ErrorCode.PROFILE_UPDATE_REQUEST_NOT_FOUND
                         )
                 );
 
     }
 
-    @ExceptionHandler(InvalidRequestStatus.class)
-    public ResponseEntity<ErrorResponse<String>> handleInvalidRequestStatus(InvalidRequestStatus exception) {
+    @ExceptionHandler(ProfileUpdateRequestNotPendingException.class)
+    public ResponseEntity<ErrorResponse<String>> handleProfileUpdateRequestNotPendingException(ProfileUpdateRequestNotPendingException exception) {
+
         return ResponseEntity
-                .status(HttpStatus.UNPROCESSABLE_CONTENT)
+                .status(HttpStatus.CONFLICT)
                 .body(
                         ErrorResponse.createErrorResponse(
                                 exception.getMessage(),
-                                ErrorCode.INVALID_REQUEST_STATUS
+                                ErrorCode.PROFILE_UPDATE_REQUEST_NOT_PENDING
                         )
                 );
 
@@ -393,6 +582,33 @@ public class GlobalExceptionHandler {
                         ErrorResponse.createErrorResponse(
                                 exception.getMessage(),
                                 ErrorCode.POST_ID_MISMATCH
+                        )
+                );
+    }
+
+    // Request exceptions
+    @ExceptionHandler(MissingCinInRequestHeaderException.class)
+    public ResponseEntity<ErrorResponse<String>> handleMissingCinInRequestHeaderException(MissingCinInRequestHeaderException exception) {
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_GATEWAY)
+                .body(
+                        ErrorResponse.createErrorResponse(
+                                exception.getMessage(),
+                                ErrorCode.MISSING_GATEWAY_FORWARDED_HEADER
+                        )
+                );
+    }
+
+    @ExceptionHandler(MissingRoleInRequestHeaderException.class)
+    public ResponseEntity<ErrorResponse<String>> handleMissingRoleInRequestHeaderException(MissingRoleInRequestHeaderException exception) {
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_GATEWAY)
+                .body(
+                        ErrorResponse.createErrorResponse(
+                                exception.getMessage(),
+                                ErrorCode.MISSING_GATEWAY_FORWARDED_HEADER
                         )
                 );
     }

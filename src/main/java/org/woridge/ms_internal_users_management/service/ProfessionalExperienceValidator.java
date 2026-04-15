@@ -1,0 +1,14 @@
+package org.woridge.ms_internal_users_management.service;
+
+import org.woridge.ms_internal_users_management.dto.professional_experience.AddProfessionalExperienceRequest;
+import org.woridge.ms_internal_users_management.dto.professional_experience.UpdateProfessionalExperienceRequest;
+import org.woridge.ms_internal_users_management.model.ProfessionalExperience;
+
+import java.util.UUID;
+
+public interface ProfessionalExperienceValidator {
+
+    void validateProfessionalExperienceForCreation(UUID userId, AddProfessionalExperienceRequest addProfessionalExperienceRequest);
+
+    void validateProfessionalExperienceForUpdate(UUID userId, ProfessionalExperience currentProfessionalExperience, UpdateProfessionalExperienceRequest updateProfessionalExperienceRequest);
+}

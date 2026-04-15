@@ -1,0 +1,7 @@
+package org.woridge.ms_internal_users_management.enumeration;
+
+public enum EducationType {
+
+    EDUCATION,
+    FORMATION
+}

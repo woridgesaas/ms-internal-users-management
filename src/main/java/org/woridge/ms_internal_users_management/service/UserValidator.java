@@ -1,10 +1,13 @@
 package org.woridge.ms_internal_users_management.service;
 
-import org.woridge.ms_internal_users_management.model.User;
+import java.util.UUID;
 
 public interface UserValidator {
-    void checkUniqueEmail(String email);
-    void checkUniqueCIN(String cin);
-    void validateUserProfile(User user);
+
+    void validateUser(UUID userId);
+
+    void validateUserForCreation(String email, String CIN);
+
+    void validateUserForUpdate(UUID userId, String email, String CIN);
 }
 
