@@ -1,5 +1,6 @@
 package org.woridge.ms_internal_users_management.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,9 +46,10 @@ public class ProfileUpdateRequestController {
     @PatchMapping("/{requestId}")
     public ResponseEntity<SuccessResponse<Void>> processProfileUpdateRequest(
             @PathVariable UUID requestId,
-            @RequestParam RequestStatus requestStatus) {
+            @RequestParam RequestStatus requestStatus,
+            HttpServletRequest request) {
 
-        profileUpdateRequestService.processProfileUpdateRequest(requestId, requestStatus);
+        profileUpdateRequestService.processProfileUpdateRequest(requestId, requestStatus, request);
 
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
