@@ -35,7 +35,6 @@ public class ProfileUpdateRequestServiceImpl implements ProfileUpdateRequestServ
     private final ProfileUpdateApplierService profileUpdateApplierService;
     private final UserRepository userRepository;
     private final UserService userService;
-    private final HttpServletRequest httpServletRequest;
     private final PersonalInformationUpdateChangeDetectorImpl personalInformationUpdateChangeDetector;
     private final BankInformationUpdateChangeDetectorImpl bankInformationUpdateChangeDetector;
     private final EducationUpdateChangeDetectorImpl educationUpdateChangeDetector;
@@ -81,9 +80,9 @@ public class ProfileUpdateRequestServiceImpl implements ProfileUpdateRequestServ
     }
 
     @Override
-    public void processProfileUpdateRequest(UUID requestId, RequestStatus requestStatus) {
+    public void processProfileUpdateRequest(UUID requestId, RequestStatus requestStatus, HttpServletRequest request) {
 
-        UUID hrId = getCurrentUserId();
+        UUID hrId = getCurrentUserId(request);
 
         ProfileUpdateRequest currentProfileUpdateRequest = getCurrentProfileUpdateRequest(requestId);
 
@@ -124,9 +123,9 @@ public class ProfileUpdateRequestServiceImpl implements ProfileUpdateRequestServ
     }
 
     @Override
-    public UUID getCurrentUserId() {
+    public UUID getCurrentUserId(HttpServletRequest request) {
 
-        String CIN = RequestUtils.extractCINFromHeaderRequest(httpServletRequest);
+        String CIN = RequestUtils.extractCINFromHeaderRequest(request);
 
         return userService.findIdByCIN(CIN);
     }

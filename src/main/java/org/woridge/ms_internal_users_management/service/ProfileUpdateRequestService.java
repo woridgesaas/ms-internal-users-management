@@ -1,5 +1,6 @@
 package org.woridge.ms_internal_users_management.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.woridge.ms_internal_users_management.dto.bank_information.UpdateBankInformationRequest;
 import org.woridge.ms_internal_users_management.dto.education.UpdateEducationRequest;
 import org.woridge.ms_internal_users_management.dto.professional_experience.UpdateProfessionalExperienceRequest;
@@ -21,11 +22,11 @@ public interface ProfileUpdateRequestService {
 
     void submitProfessionalExperienceUpdateRequest(UUID userId, UUID professionalExperienceId, UpdateProfessionalExperienceRequest request);
 
-    void processProfileUpdateRequest(UUID requestId, RequestStatus status);
+    void processProfileUpdateRequest(UUID requestId, RequestStatus status, HttpServletRequest request);
 
     List<ProfileUpdateSummaryRequest> getAllProfileUpdateRequests();
 
     ProfileUpdateDetailsRequest getProfileUpdateRequestDetails(UUID requestId);
 
-    UUID getCurrentUserId();
+    UUID getCurrentUserId(HttpServletRequest request);
 }
