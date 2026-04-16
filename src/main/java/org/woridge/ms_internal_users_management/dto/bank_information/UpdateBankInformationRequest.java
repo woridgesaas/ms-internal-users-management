@@ -30,9 +30,11 @@ public record UpdateBankInformationRequest(
         @Pattern(regexp = "^MA\\d{26}$", message = "IBAN must start with 'MA' and contain 28 characters")
         String IBAN,
 
+        @NotBlank(message = "Agency name is required")
         @Size(min = 5, max = 50, message = "Agency name must be between 5 and 50 characters")
         String agencyName,
 
+        @NotBlank(message = "Agency city is required")
         @Size(min = 3, max = 50, message = "Agency city must be between 3 and 50 characters")
         String agencyCity
 ) {
