@@ -1,6 +1,6 @@
 services:
 
-  database:
+  woridge.db.userinternal:
     image: postgres:16
     container_name: "database"
     env_file:
@@ -17,6 +17,7 @@ services:
       retries: 5
     networks:
       - woridge-external-network
+      - provisioning-service-network
 
   backend:
     build:
@@ -35,7 +36,7 @@ services:
     volumes:
       - ms-internal-user_logs:/app/logs
     depends_on:
-      database:
+      woridge.db.userinternal:
         condition: service_healthy
     networks:
       - woridge-external-network
@@ -47,4 +48,7 @@ volumes:
 
 networks:
   woridge-external-network:
+    external: true
+
+  provisioning-service-network:
     external: true
