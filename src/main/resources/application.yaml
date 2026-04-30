@@ -41,3 +41,11 @@ internal:
 
 services:
   auth-url: ${AUTH_SERVICE_URL}
+
+
+tenant:
+  database:
+    host: woridge.db.userinternal
+    port: 5432
+    username: ${POSTGRES_USER}
+    password: ${DB_PASSWORD}
