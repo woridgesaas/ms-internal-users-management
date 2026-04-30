@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.woridge.ms_internal_users_management.dto.ErrorResponse;
+import org.woridge.ms_internal_users_management.dto.tenant.TenantContext;
 import org.woridge.ms_internal_users_management.enumeration.ErrorCode;
 
 import java.io.IOException;
@@ -75,8 +76,16 @@ public class InternalRequestFilter extends OncePerRequestFilter {
 
             return;
         }
+        try {
+            String subdomain = request.getHeader("X-Subdomain");
+            if (subdomain != null && !subdomain.isBlank()) {
+                TenantContext.setTenantId(subdomain);
+            }
+            filterChain.doFilter(request, response);
+        } finally {
+            TenantContext.clear();
+        }
 
-        filterChain.doFilter(request, response);
     }
 
     private void writeErrorResponse(HttpServletResponse response, HttpStatus status, String message, ErrorCode errorCode) throws IOException {

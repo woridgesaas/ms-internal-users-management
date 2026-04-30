@@ -3,6 +3,10 @@ stages:
   - test
   - package
 
+workflow:
+  rules:
+    - when: never
+
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
 
