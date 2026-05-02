@@ -1,20 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <!-- Filtre to exclude logs AUDIT -->
+    <!-- ===== APPENDER LOGS DEV ===== -->
     <appender name="APP_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/dev/ms-internal-user_dev.json</file>
-
-        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
-            <evaluator>
-                <expression>return MDC.get("LogType") != null &amp;&amp; MDC.get("LogType").equals("Audit");</expression>
-            </evaluator>
-            <OnMismatch>NEUTRAL</OnMismatch>
-            <OnMatch>DENY</OnMatch>
-        </filter>
+        <file>logs/dev/ms-user_dev.json</file>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>logs/dev/ms-user-internal_dev-%d{yyyy-MM-dd}.json</fileNamePattern>
+            <fileNamePattern>logs/dev/ms-user_dev_%d{yyyyMMdd}.json</fileNamePattern>
             <maxHistory>3</maxHistory>
         </rollingPolicy>
 
@@ -22,24 +14,17 @@
             <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
                 <timestampFormat>yyyy-MM-dd'T'HH:mm:ss.SSSXXX</timestampFormat>
                 <appendLineSeparator>true</appendLineSeparator>
+                <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter"/>
             </layout>
         </encoder>
     </appender>
 
-    <!-- Filtre to include only  logs AUDIT -->
+    <!-- ===== APPENDER LOGS AUDIT ===== -->
     <appender name="AUDIT_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/audit/ms-user-internal_audit.json</file>
-
-        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
-            <evaluator>
-                <expression>return MDC.get("LogType") != null &amp;&amp; MDC.get("LogType").equals("Audit");</expression>
-            </evaluator>
-            <OnMismatch>DENY</OnMismatch>
-            <OnMatch>NEUTRAL</OnMatch>
-        </filter>
+        <file>logs/audit/ms-user_audit.json</file>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>logs/audit/ms-internal-user_audit-%d{yyyy-MM-dd}.json</fileNamePattern>
+            <fileNamePattern>logs/audit/ms-user_audit_%d{yyyyMMdd}.json</fileNamePattern>
             <maxHistory>1</maxHistory>
         </rollingPolicy>
 
@@ -47,23 +32,34 @@
             <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
                 <timestampFormat>yyyy-MM-dd'T'HH:mm:ss.SSSXXX</timestampFormat>
                 <appendLineSeparator>true</appendLineSeparator>
-                <includeMdc>true</includeMdc> <!-- Display preconfigured label MDC like service name :)-->
+                <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter"/>
             </layout>
         </encoder>
     </appender>
+
+    <!-- ===== APPENDER CONSOLE ===== -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
-    <logger name="org.springframework" level="INFO"/>
-    <logger name="org.hibernate.SQL" level="INFO"/>
-    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="WARN"/>
 
-    <!-- Root -->
-    <root level="DEBUG">
+    <!-- ===== LOGGER DÉDIÉ POUR AUDIT ===== -->
+    <logger name="AUDIT_LOGGER" level="INFO" additivity="false">
+        <appender-ref ref="AUDIT_LOG"/>
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
+    <!-- ===== RÉDUCTION LOGS SYSTÈMES ===== -->
+    <logger name="org.hibernate" level="WARN"/>
+    <logger name="com.zaxxer.hikari" level="WARN"/>
+    <logger name="org.springframework.amqp" level="WARN"/>
+    <logger name="io.netty" level="WARN"/>
+
+    <!-- ===== ROOT (logs normaux) ===== -->
+    <root level="INFO">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="APP_LOG"/>
-        <appender-ref ref="AUDIT_LOG"/>
     </root>
+
 </configuration>
