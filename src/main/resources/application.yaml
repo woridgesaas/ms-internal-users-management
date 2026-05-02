@@ -46,6 +46,6 @@ services:
 tenant:
   database:
     host: woridge.db.userinternal
-    port: 5432
+    port: ${POSTGRES_PORT}
     username: ${POSTGRES_USER}
     password: ${DB_PASSWORD}
