@@ -46,7 +46,7 @@ public class TenantDatasourceConfig extends AbstractRoutingDataSource {
 
     @PostConstruct
     public void init() {
-        // Base par défaut
+        // Default base
         DataSource defaultDs = DataSourceBuilder.create()
                 .url(defaultUrl)
                 .username(defaultUsername)
