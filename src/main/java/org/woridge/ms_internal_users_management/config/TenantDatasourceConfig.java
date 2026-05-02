@@ -66,7 +66,7 @@ public class TenantDatasourceConfig extends AbstractRoutingDataSource {
     protected DataSource determineTargetDataSource() {
         String tenantId = TenantContext.getTenantId();
         log.info("Determining the tenant {} " , tenantId);
-        if (tenantId != null) {
+        if (tenantId != null && !"dev-local".equals(tenantId)) {
             return tenantCache.computeIfAbsent(tenantId,
                     id -> this.createTenantDataSource(id));
         }
