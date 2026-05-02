@@ -17,30 +17,34 @@ import java.io.IOException;
 @Component
 @Slf4j
 public class LoggerConfig extends OncePerRequestFilter {
+
     @Value("${spring.application.name}")
     private String serviceName;
-
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         long startTime = System.currentTimeMillis();
+        String uri = request.getRequestURI();
+        if (uri.contains("favicon")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         try {
-            // MDC automatique
+            // MDC communs (for DEV)
             MDC.put("service", serviceName);
             MDC.put("method", request.getMethod());
             MDC.put("uri", request.getRequestURI());
             MDC.put("clientIp", request.getRemoteAddr());
 
             String tenantId = TenantContext.getTenantId();
-            if (tenantId != null) {
-                MDC.put("tenant", tenantId);
-            }else{
-                MDC.put("tenant", "local-testing");
-            }
+            MDC.put("tenant", tenantId != null ? tenantId : "dev-local");
 
-            if (MDC.get("LogType") == null) {
-                MDC.put("LogType", LogType.DEV.getValue());
-            }
+            String cin = request.getHeader("X-User-CIN");
+            String role = request.getHeader("X-User-Role");
+            MDC.put("userMatricule", cin != null ? cin : "anonymous");
+            MDC.put("userRole", role != null ? role : "N/A");
+
+            MDC.put(LogType.class.getName(), LogType.DEV.getValue());
 
             filterChain.doFilter(request, response);
 
@@ -48,11 +52,8 @@ public class LoggerConfig extends OncePerRequestFilter {
             long duration = System.currentTimeMillis() - startTime;
             MDC.put("duration", String.valueOf(duration));
             MDC.put("status", String.valueOf(response.getStatus()));
-
-
             log.info("Request completed");
-
-            MDC.clear();
         }
     }
 }
+

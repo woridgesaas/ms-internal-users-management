@@ -49,3 +49,12 @@ tenant:
     port: ${POSTGRES_PORT}
     username: ${POSTGRES_USER}
     password: ${DB_PASSWORD}
+
+logging:
+  level:
+    root: INFO
+    org.woridge: DEBUG
+  logback:
+    rollingpolicy:
+      max-history: 3
+      max-file-size: 10MB
