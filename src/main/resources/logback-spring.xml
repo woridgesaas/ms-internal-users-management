@@ -44,19 +44,19 @@
         </encoder>
     </appender>
 
-    <!-- ===== LOGGER DÉDIÉ POUR AUDIT ===== -->
+    <!-- ===== LOGGER FOR AUDIT ===== -->
     <logger name="AUDIT_LOGGER" level="INFO" additivity="false">
         <appender-ref ref="AUDIT_LOG"/>
         <appender-ref ref="CONSOLE"/>
     </logger>
 
-    <!-- ===== RÉDUCTION LOGS SYSTÈMES ===== -->
+    <!-- ===== Modification logs level ===== -->
     <logger name="org.hibernate" level="WARN"/>
     <logger name="com.zaxxer.hikari" level="WARN"/>
     <logger name="org.springframework.amqp" level="WARN"/>
     <logger name="io.netty" level="WARN"/>
 
-    <!-- ===== ROOT (logs normaux) ===== -->
+    <!-- =====  ROOT (normal logs)===== -->
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="APP_LOG"/>
