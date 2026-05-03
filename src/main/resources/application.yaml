@@ -29,6 +29,9 @@ rabbitmq:
     chatbot-resignation: chatbot.resignation.created
     chatbot-salary: chatbot.salary.verse
     user-created-document: user.created.document #ms-document
+    tenant-ready: tenant.ready.ms-user
+  queue:
+    provisioning: q.user.provisioning
 
 
 server:
