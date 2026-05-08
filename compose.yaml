@@ -1,8 +1,8 @@
 services:
 
-  woridge.db.userinternal:
+  woridge.internal-users.db:
     image: postgres:16
-    container_name: "database"
+    container_name: "internal_users_management_db"
     env_file:
       - .env
     ports:
@@ -27,16 +27,16 @@ services:
     env_file:
       - .env
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://woridge.db.userinternal:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_URL: ${POSTGRES_URL}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "${SERVER_PORT}:${SERVER_PORT}"
+      - "${SERVER_PORT}:8080"
     restart: always
     volumes:
       - ms-internal-user_logs:/app/logs
     depends_on:
-      woridge.db.userinternal:
+      woridge.internal-users.db:
         condition: service_healthy
     networks:
       - woridge-external-network
