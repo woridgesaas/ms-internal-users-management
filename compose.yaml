@@ -1,6 +1,6 @@
 services:
 
-  woridge.internal-users.db:
+  woridge.db.userinternal:
     image: postgres:16
     container_name: "internal_users_management_db"
     env_file:
@@ -36,7 +36,7 @@ services:
     volumes:
       - ms-internal-user_logs:/app/logs
     depends_on:
-      woridge.internal-users.db:
+      woridge.db.userinternal:
         condition: service_healthy
     networks:
       - woridge-external-network
