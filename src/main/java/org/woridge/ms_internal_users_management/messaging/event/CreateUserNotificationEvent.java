@@ -14,5 +14,12 @@ public class CreateUserNotificationEvent {
     private String fullName;
     private String email;
     private String password;
-
+    @Override
+    public String toString() {
+        return "CreateUserNotificationEvent{" +
+                "fullName='" + fullName + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
 }

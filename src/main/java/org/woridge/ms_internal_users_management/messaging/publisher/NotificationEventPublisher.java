@@ -42,7 +42,6 @@ public class NotificationEventPublisher {
                         .email(user.getEmail())
                         .password(password)
                         .build();
-
         rabbitTemplate.convertAndSend(exchange, routingKey, event);
     }
 
