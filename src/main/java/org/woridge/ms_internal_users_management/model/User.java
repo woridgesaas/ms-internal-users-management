@@ -54,5 +54,31 @@ public class User {
     private Instant updatedAt;
     @OneToOne(mappedBy = "user" ,cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private SocialInfo socialInfo;
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", CIN='" + CIN + '\'' +
+                ", status=" + status +
+                ", address='" + address + '\'' +
+                ", picturePath='" + picturePath + '\'' +
+                ", role=" + role +
+                ", birthDate=" + birthDate +
+                ", departmentId=" + (department != null ? department.getId() : null) + 
+                ", postId=" + (post != null ? post.getId() : null) +
+                ", hasBankInformation=" + (bankInformation != null) +
+                ", educationsCount=" + (educations != null ? educations.size() : 0) +
+                ", professionalExperiencesCount=" + (professionalExperiences != null ? professionalExperiences.size() : 0) +
+                ", socialInfoId=" + (socialInfo != null ? socialInfo.getId() : null) +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
+    }
 }
 

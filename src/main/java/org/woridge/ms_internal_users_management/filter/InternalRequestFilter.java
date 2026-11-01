@@ -1,10 +1,7 @@
 package org.woridge.ms_internal_users_management.filter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -14,7 +11,12 @@ import org.woridge.ms_internal_users_management.dto.ErrorResponse;
 import org.woridge.ms_internal_users_management.dto.tenant.TenantContext;
 import org.woridge.ms_internal_users_management.enumeration.ErrorCode;
 
-import java.io.IOException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class InternalRequestFilter extends OncePerRequestFilter {

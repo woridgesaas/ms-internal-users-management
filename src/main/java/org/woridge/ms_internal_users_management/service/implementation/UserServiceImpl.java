@@ -1,21 +1,29 @@
 package org.woridge.ms_internal_users_management.service.implementation;
 
-import lombok.AllArgsConstructor;
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.woridge.ms_internal_users_management.dto.user.*;
+import org.woridge.ms_internal_users_management.dto.user.CreateUserRequest;
+import org.woridge.ms_internal_users_management.dto.user.CreateUserResponse;
+import org.woridge.ms_internal_users_management.dto.user.CurrentUserProfileResponse;
+import org.woridge.ms_internal_users_management.dto.user.GetAllUserResponse;
+import org.woridge.ms_internal_users_management.dto.user.UpdateUserPersonalInformationRequest;
+import org.woridge.ms_internal_users_management.dto.user.UserProfileResponse;
+import org.woridge.ms_internal_users_management.dto.user.UserSearchResponse;
 import org.woridge.ms_internal_users_management.enumeration.Role;
 import org.woridge.ms_internal_users_management.exception.auth.AuthFailedException;
 import org.woridge.ms_internal_users_management.exception.department.DepartmentNotFoundException;
 import org.woridge.ms_internal_users_management.exception.post.PostNotFoundException;
 import org.woridge.ms_internal_users_management.exception.user.UserNotFoundException;
 import org.woridge.ms_internal_users_management.integration.auth.AuthServiceClient;
+import org.woridge.ms_internal_users_management.mapper.UserMapper;
 import org.woridge.ms_internal_users_management.messaging.publisher.NotificationEventPublisher;
 import org.woridge.ms_internal_users_management.model.Department;
 import org.woridge.ms_internal_users_management.model.Post;
 import org.woridge.ms_internal_users_management.model.User;
-import org.woridge.ms_internal_users_management.mapper.UserMapper;
 import org.woridge.ms_internal_users_management.repository.DepartmentRepository;
 import org.woridge.ms_internal_users_management.repository.PostRepository;
 import org.woridge.ms_internal_users_management.repository.UserRepository;
@@ -24,11 +32,9 @@ import org.woridge.ms_internal_users_management.service.UserService;
 import org.woridge.ms_internal_users_management.service.UserValidator;
 import org.woridge.ms_internal_users_management.utils.PasswordGenerator;
 
-import java.util.List;
-import java.util.UUID;
-
-import static reactor.netty.http.HttpConnectionLiveness.log;
-
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Service
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -59,9 +65,9 @@ public class UserServiceImpl implements UserService {
         String hashedPassword = passwordEncoder.encode(tempPassword);
 
         Role role = Role.valueOf(request.getRole());
-
         // 4) map + save
         User user = userMapper.toUser(request, department, post, hashedPassword, role);
+        log.info("Saving user = {}" , user.toString());
         User saved = userRepository.save(user);
         //  créer salaire initial automatiquement
         salaryService.createNewSalary(
@@ -84,8 +90,9 @@ public class UserServiceImpl implements UserService {
             throw new AuthFailedException("Auth service failed. User rollback executed.");
         }
         // notification email
-        notificationEventPublisher.publishUserCreated(saved, tempPassword);
+        //notificationEventPublisher.publishUserCreated(saved, tempPassword);
         notificationEventPublisher.publishUserSync(saved);
+        log.info("Sending event SyncUser = {}" , saved.toString());
 //        String tenant = httpServletRequest
 //                .getHeader("X-Subdomain");
 //

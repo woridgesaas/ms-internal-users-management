@@ -56,7 +56,7 @@ tenant:
 logging:
   level:
     root: INFO
-    org.woridge: DEBUG
+    org.woridge: INFO
   logback:
     rollingpolicy:
       max-history: 3
